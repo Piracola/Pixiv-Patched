@@ -217,6 +217,7 @@ object AiUiHelper {
 
             val context = view.context
             AiDetectionHelper.appContext = context.applicationContext
+            app.morphe.extension.pixiv.premium.HistoryHelper.recordView(actualIllust)
 
             // Cache current detail bitmap for instant fullscreen placeholder
             view.post {

@@ -104,20 +104,8 @@ val pixivPremiumPatch: BytecodePatch = bytecodePatch(
             )
         }
 
-        // 8. DetailBottomBarView.setWork() -> record the opened work (illustration or novel) so the
-        //    history fallback above has something to show. The illust class name is pushed in from
-        //    here because both artwork types reach this method.
-        val bottomBarClass = mutableClassDefByOrNull("Ljp/pxv/android/feature/component/androidview/DetailBottomBarView;")
-        bottomBarClass?.let { cls ->
-            val setWorkMethod = cls.methods.firstOrNull { it.name == "setWork" && it.parameterTypes.size == 1 }
-            setWorkMethod?.addInstructions(
-                1,
-                """
-                const-string v0, "Le97;"
-                invoke-static {v0}, Lapp/morphe/extension/pixiv/premium/HistoryHelper;->setIllustClassName(Ljava/lang/String;)V
-                invoke-static {p1}, Lapp/morphe/extension/pixiv/premium/HistoryHelper;->recordView(Ljava/lang/Object;)V
-                """.trimIndent()
-            )
-        }
+        // NOTE: recording opened works for the history fallback lives in PixivAiFlaggerPatch, which
+        // already hooks DetailBottomBarView.setWork. This method keeps `this` in v0 and has no spare
+        // local register, so injecting a second hook here is not safe.
     }
 }

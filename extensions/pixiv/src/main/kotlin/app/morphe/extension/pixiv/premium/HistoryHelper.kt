@@ -10,16 +10,10 @@ object HistoryHelper {
     private const val MAX_HISTORY = 100
 
     /**
-     * Obfuscated PixivIllust class name for the pinned app version, pushed in from the patch so the
-     * extension can tell artworks and novels apart (both are passed to the same bottom bar).
+     * Obfuscated PixivIllust class for the pinned app version. Illustrations and novels are both
+     * handed to the same detail bottom bar, so they are split into two buckets by class name.
      */
-    @Volatile
-    private var illustClassName: String? = null
-
-    @JvmStatic
-    fun setIllustClassName(name: String?) {
-        illustClassName = name
-    }
+    private val ILLUST_CLASS_NAMES = setOf("e97", "Le97;")
 
     @JvmStatic
     fun recordView(work: Any?) {
@@ -61,11 +55,7 @@ object HistoryHelper {
         }
     }
 
-    private fun isIllust(work: Any): Boolean {
-        val expected = illustClassName ?: return true
-        val actual = work.javaClass.name
-        return actual == expected || actual == expected.removeSurrounding("L", ";")
-    }
+    private fun isIllust(work: Any): Boolean = work.javaClass.name in ILLUST_CLASS_NAMES
 
     private fun getWorkId(work: Any?): String? {
         if (work == null) return null
