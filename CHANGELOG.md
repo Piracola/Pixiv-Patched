@@ -1,3 +1,9 @@
+## [1.0.1](https://github.com/Piracola/Pixiv-Patched/compare/v1.0.0...v1.0.1) (2026-11-02)
+
+### 🐛 Bug Fixes
+
+* **premium:** restore novel browsing history and stop mixing novels into the illust list ([3da59e7](https://github.com/Piracola/Pixiv-Patched/commit/3da59e72185f2ffb9e69bcf7adf2f247a18deeba))
+
 ## 1.0.0 (2026-11-02)
 
 ### ✨ New Features
