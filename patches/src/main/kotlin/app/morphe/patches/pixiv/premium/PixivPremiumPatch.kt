@@ -8,7 +8,7 @@ import app.morphe.patcher.patch.bytecodePatch
 
 val pixivPremiumPatch: BytecodePatch = bytecodePatch(
     name = "Pixiv Premium Features",
-    description = "Emulates client-side Pixiv Premium membership status, removes the mute list limits, and restores the browsing history endpoint output.",
+    description = "Emulates client-side Pixiv Premium membership status, removes the mute list limits, and restores the illustration/manga and novel browsing history lists.",
     default = true
 ) {
     compatibleWith(PixivConstants.PIXIV)
@@ -75,7 +75,7 @@ val pixivPremiumPatch: BytecodePatch = bytecodePatch(
             }
         }
 
-        // 6. IllustBrowsingHistoryResponse -> fall back to the locally cached history when the
+        // 6. IllustBrowsingHistoryResponse.illusts() -> fall back to the locally cached list when the
         //    server returns an empty page for non-premium accounts.
         val historyResponseClass = mutableClassDefByOrNull("Ljp/pxv/android/data/browsinghistory/remote/dto/IllustBrowsingHistoryResponse;")
         historyResponseClass?.let { cls ->
@@ -86,6 +86,36 @@ val pixivPremiumPatch: BytecodePatch = bytecodePatch(
                 invoke-static {p0}, Lapp/morphe/extension/pixiv/premium/HistoryHelper;->getHistoryList(Ljava/lang/Object;)Ljava/util/List;
                 move-result-object v0
                 return-object v0
+                """.trimIndent()
+            )
+        }
+
+        // 7. NovelBrowsingHistoryResponse.novels() -> same fallback for the novel history tab
+        val novelHistoryResponseClass = mutableClassDefByOrNull("Ljp/pxv/android/data/browsinghistory/remote/dto/NovelBrowsingHistoryResponse;")
+        novelHistoryResponseClass?.let { cls ->
+            val novelHistoryMethod = cls.methods.firstOrNull { it.name == "b" && it.returnType == "Ljava/util/List;" }
+            novelHistoryMethod?.addInstructions(
+                1,
+                """
+                invoke-static {p0}, Lapp/morphe/extension/pixiv/premium/HistoryHelper;->getNovelHistoryList(Ljava/lang/Object;)Ljava/util/List;
+                move-result-object v0
+                return-object v0
+                """.trimIndent()
+            )
+        }
+
+        // 8. DetailBottomBarView.setWork() -> record the opened work (illustration or novel) so the
+        //    history fallback above has something to show. The illust class name is pushed in from
+        //    here because both artwork types reach this method.
+        val bottomBarClass = mutableClassDefByOrNull("Ljp/pxv/android/feature/component/androidview/DetailBottomBarView;")
+        bottomBarClass?.let { cls ->
+            val setWorkMethod = cls.methods.firstOrNull { it.name == "setWork" && it.parameterTypes.size == 1 }
+            setWorkMethod?.addInstructions(
+                1,
+                """
+                const-string v0, "Le97;"
+                invoke-static {v0}, Lapp/morphe/extension/pixiv/premium/HistoryHelper;->setIllustClassName(Ljava/lang/String;)V
+                invoke-static {p1}, Lapp/morphe/extension/pixiv/premium/HistoryHelper;->recordView(Ljava/lang/Object;)V
                 """.trimIndent()
             )
         }
