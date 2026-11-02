@@ -15,17 +15,20 @@ val pixivEnhancedViewerPatch: BytecodePatch = bytecodePatch(
     extendWith("extensions/pixiv.mpe")
 
     execute {
-        // --- Hook 1: DetailImageViewHolder.bind$lambda$0 (Capture detail bitmap on image click) ---
+        // --- Hook 1: DetailImageViewHolder.bind$lambda$0 (Capture detail bitmap of the tapped page) ---
+        // p0 = Le97 illust, p1 = holder, p2 = page index (the same index the app forwards to the
+        // viewer as "KEY_POSITION"), p3 = clicked view.
         val holderClass = mutableClassDefBy("Ljp/pxv/android/feature/illustviewer/detail/DetailImageViewHolder;")
         val clickMethod = holderClass.methods.first { it.name.contains("lambda") && it.parameterTypes.size == 4 }
         clickMethod.addInstructions(
             0,
-            "invoke-static {p1, p0}, Lapp/morphe/extension/pixiv/viewer/EnhancedViewerHelper;->onDetailImageClicked(Ljava/lang/Object;Ljava/lang/Object;)V"
+            "invoke-static {p1, p0, p2}, Lapp/morphe/extension/pixiv/viewer/EnhancedViewerHelper;->onDetailImageClicked(Ljava/lang/Object;Ljava/lang/Object;I)V"
         )
 
         // --- Hook 2: fullscreen pager adapter instantiateItem (instant placeholder & loading badge) ---
         // The adapter is the only PagerAdapter subclass in the fullscreen artwork viewer:
         // instantiateItem() builds the photo layout (v3) and its attacher (v4) before returning v3.
+        // The page index is read from the tag the adapter set on the photo view.
         val pagerAdapterClass = mutableClassDefBy("Lea4;")
         val instantiateMethod = pagerAdapterClass.methods.first { it.name == "instantiateItem" }
         val instantiateReturnIdx = instantiateMethod.implementation?.instructions?.indexOfLast {
@@ -39,6 +42,7 @@ val pixivEnhancedViewerPatch: BytecodePatch = bytecodePatch(
         }
 
         // --- Hook 3: Glide full-res target callback (matrix & zoom preservation, badge dismissal) ---
+        // Inserted before the drawable is installed, so the attacher still holds the placeholder state.
         val fullResTargetClass = mutableClassDefBy("Lda4;")
         val onResourceReady = fullResTargetClass.methods.first {
             it.name == "c" && it.parameterTypes.size == 2 && it.returnType == "V"
