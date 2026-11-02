@@ -40,7 +40,7 @@ AI 作品标记、去广告、原图下载、客户端会员功能、热度搜�
 ## 🩹 补丁列表
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.0.0](https://github.com/Piracola/Pixiv-Patched/releases/tag/v1.0.0)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;8 patches total
+> **[v1.0.1](https://github.com/Piracola/Pixiv-Patched/releases/tag/v1.0.1)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;8 patches total
 <details open>
 <summary>📦 Pixiv&nbsp;&nbsp;•&nbsp;&nbsp;8 patches</summary>
 <br>
@@ -61,7 +61,7 @@ AI 作品标记、去广告、原图下载、客户端会员功能、热度搜�
 | [Pixiv Enhanced Viewer & Instant Zoom](#pixiv-enhanced-viewer-instant-zoom) | Displays the standard-resolution artwork as an instant placeholder while the full-resolution image loads, allows immediate pinch-to-zoom/pan preserving zoom coordinates upon high-res load, and shows a discreet loading indicator. |  |
 | [Pixiv OLED Dark Theme](#pixiv-oled-dark-theme) | Overrides dark gray surface and background colors with pure pitch black (#ff000000) for OLED battery savings and true high-contrast dark mode. |  |
 | [Pixiv Popular Search Unlock](#pixiv-popular-search-unlock) | Unlocks sorting search results by popularity (popular_desc) without a premium subscription or trial countdown. |  |
-| [Pixiv Premium Features](#pixiv-premium-features) | Emulates client-side Pixiv Premium membership status, removes the mute list limits, and restores the browsing history endpoint output. |  |
+| [Pixiv Premium Features](#pixiv-premium-features) | Emulates client-side Pixiv Premium membership status, removes the mute list limits, and restores the illustration/manga and novel browsing history lists. |  |
 
 </details>
 

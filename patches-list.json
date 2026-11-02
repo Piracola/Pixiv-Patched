@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "patches": [
     {
       "name": "Pixiv AI Work Flagger",
@@ -193,7 +193,7 @@
     },
     {
       "name": "Pixiv Premium Features",
-      "description": "Emulates client-side Pixiv Premium membership status, removes the mute list limits, and restores the browsing history endpoint output.",
+      "description": "Emulates client-side Pixiv Premium membership status, removes the mute list limits, and restores the illustration/manga and novel browsing history lists.",
       "default": true,
       "category": null,
       "compatiblePackages": [
