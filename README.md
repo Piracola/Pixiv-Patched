@@ -41,9 +41,9 @@ AI 作品标记、去广告、原图下载、客户端会员功能、本地浏�
 ## 🩹 补丁列表
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.1.0](https://github.com/Piracola/Pixiv-Patched/releases/tag/v1.1.0)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;10 patches total
+> **[v1.2.0](https://github.com/Piracola/Pixiv-Patched/releases/tag/v1.2.0)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;9 patches total
 <details open>
-<summary>📦 Pixiv&nbsp;&nbsp;•&nbsp;&nbsp;10 patches</summary>
+<summary>📦 Pixiv&nbsp;&nbsp;•&nbsp;&nbsp;9 patches</summary>
 <br>
 
 **Package name:** `jp.pxv.android`
@@ -63,8 +63,7 @@ AI 作品标记、去广告、原图下载、客户端会员功能、本地浏�
 | [Pixiv OLED Dark Theme](#pixiv-oled-dark-theme) | Overrides dark gray surface and background colors with pure pitch black (#ff000000) for OLED battery savings and true high-contrast dark mode. |  |
 | [Pixiv Popular Search Unlock](#pixiv-popular-search-unlock) | Unlocks sorting search results by popularity (popular_desc) without a premium subscription or trial countdown. |  |
 | [Pixiv Premium Features](#pixiv-premium-features) | Emulates client-side Pixiv Premium membership status and removes the mute list limits. |  |
-| [Pixiv-Patched Settings Page](#pixiv-patched-settings-page) | Adds a Pixiv-Patched row to Pixiv's settings that opens a page with the state of every patch and the browsing history recorded on this device. |  |
-| [Pixiv-Patched Settings Row](#pixiv-patched-settings-row) | Turns the work auto-translation row of Pixiv's settings into the Pixiv-Patched entry that opens the patch page. |  |
+| [Pixiv-Patched Drawer Entry](#pixiv-patched-drawer-entry) | Adds a Pixiv-Patched item to Pixiv's home drawer that opens a page with the state of every patch, the AI work settings and the browsing history kept on this device. |  |
 
 </details>
 

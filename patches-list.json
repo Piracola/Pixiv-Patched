@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "patches": [
     {
       "name": "Pixiv AI Work Flagger",
@@ -219,35 +219,8 @@
       "options": []
     },
     {
-      "name": "Pixiv-Patched Settings Page",
-      "description": "Adds a Pixiv-Patched row to Pixiv's settings that opens a page with the state of every patch and the browsing history recorded on this device.",
-      "default": true,
-      "category": null,
-      "compatiblePackages": [
-        {
-          "packageName": "jp.pxv.android",
-          "name": "Pixiv",
-          "description": null,
-          "apkFileType": "APK",
-          "appIconColor": "#0096FA",
-          "signatures": null,
-          "formFactor": "MOBILE",
-          "targets": [
-            {
-              "version": "6.202.1",
-              "versionCodes": null,
-              "isExperimental": false,
-              "minSdk": null,
-              "description": null
-            }
-          ]
-        }
-      ],
-      "options": []
-    },
-    {
-      "name": "Pixiv-Patched Settings Row",
-      "description": "Turns the work auto-translation row of Pixiv's settings into the Pixiv-Patched entry that opens the patch page.",
+      "name": "Pixiv-Patched Drawer Entry",
+      "description": "Adds a Pixiv-Patched item to Pixiv's home drawer that opens a page with the state of every patch, the AI work settings and the browsing history kept on this device.",
       "default": true,
       "category": null,
       "compatiblePackages": [
