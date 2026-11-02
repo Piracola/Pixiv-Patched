@@ -1,5 +1,7 @@
 package app.morphe.extension.pixiv.aiflag
 
+import app.morphe.extension.pixiv.ui.Strings
+
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
@@ -18,6 +20,11 @@ object AiFilterSettingsView {
 
     @JvmStatic
     fun setup(activity: Activity) {
+        activity.setContentView(build(activity) { activity.finish() })
+    }
+
+    @JvmStatic
+    fun build(activity: Activity, onBack: () -> Unit): View? {
         try {
             val isDark = (activity.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
 
@@ -61,13 +68,13 @@ object AiFilterSettingsView {
                 val p = dpToPx(activity, 8f).toInt()
                 setPadding(0, 0, p * 2, 0)
                 setOnClickListener {
-                    activity.finish()
+                    onBack()
                 }
             }
             toolbar.addView(backButton)
 
             val titleView = TextView(activity).apply {
-                text = "AI Work Filter Settings"
+                text = Strings.aiTitle
                 textSize = 18f
                 typeface = Typeface.DEFAULT_BOLD
                 setTextColor(textPrimaryColor)
@@ -93,15 +100,15 @@ object AiFilterSettingsView {
             }
 
             // Section 1: Display Preferences Card
-            content.addView(createSectionHeader(activity, "DISPLAY PREFERENCES", accentColor))
+            content.addView(createSectionHeader(activity, Strings.aiDisplaySection, accentColor))
 
             val displayCard = createCard(activity, cardBgColor)
 
             // Switch: Hide Completely
             val hideSwitchRow = createSwitchRow(
                 activity,
-                "Hide AI Works Completely",
-                "Completely remove AI works from feeds instead of dimming them with [AI] badge.",
+                Strings.aiHideWorks,
+                Strings.aiHideWorksDesc,
                 textPrimaryColor,
                 textSecondaryColor,
                 AiFilterConfig.getHideCompletely(activity)
@@ -115,8 +122,8 @@ object AiFilterSettingsView {
             // Switch: Auto-Block Artists
             val autoBlockSwitchRow = createSwitchRow(
                 activity,
-                "Auto-Block AI Artists",
-                "Automatically record accounts that post AI works to hide all their current and future works.",
+                Strings.aiAutoBlock,
+                Strings.aiAutoBlockDesc,
                 textPrimaryColor,
                 textSecondaryColor,
                 AiFilterConfig.getAutoBlockArtists(activity)
@@ -128,7 +135,7 @@ object AiFilterSettingsView {
             content.addView(displayCard)
 
             // Section 2: Blocked Artists
-            content.addView(createSectionHeader(activity, "BLOCKED ARTISTS", accentColor))
+            content.addView(createSectionHeader(activity, Strings.aiBlockedSection, accentColor))
 
             val blockedCard = createCard(activity, cardBgColor)
             val blockedRow = LinearLayout(activity).apply {
@@ -139,7 +146,7 @@ object AiFilterSettingsView {
             }
 
             val blockedCountView = TextView(activity).apply {
-                text = "Blocked Artists: ${AiFilterConfig.getBlockedUserCount(activity)}"
+                text = Strings.aiBlockedCount(AiFilterConfig.getBlockedUserCount(activity))
                 textSize = 15f
                 setTextColor(textPrimaryColor)
                 layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
@@ -147,7 +154,7 @@ object AiFilterSettingsView {
             blockedRow.addView(blockedCountView)
 
             val clearButton = TextView(activity).apply {
-                text = "Clear All"
+                text = Strings.aiClearAll
                 textSize = 14f
                 typeface = Typeface.DEFAULT_BOLD
                 setTextColor(redColor)
@@ -162,14 +169,14 @@ object AiFilterSettingsView {
                 }
                 setOnClickListener {
                     AlertDialog.Builder(activity)
-                        .setTitle("Clear Blocked Artists")
-                        .setMessage("Are you sure you want to unblock all auto-blocked artists (${AiFilterConfig.getBlockedUserCount(activity)} accounts)?")
-                        .setPositiveButton("Clear") { _, _ ->
+                        .setTitle(Strings.aiClearTitle)
+                        .setMessage(Strings.aiClearConfirm)
+                        .setPositiveButton(Strings.aiClear) { _, _ ->
                             AiFilterConfig.clearBlockedUserIds(activity)
-                            blockedCountView.text = "Blocked Artists: 0"
-                            Toast.makeText(activity, "Blocked artists list cleared", Toast.LENGTH_SHORT).show()
+                            blockedCountView.text = Strings.aiBlockedCount(0)
+                            Toast.makeText(activity, Strings.aiCleared, Toast.LENGTH_SHORT).show()
                         }
-                        .setNegativeButton("Cancel", null)
+                        .setNegativeButton(Strings.aiCancel, null)
                         .show()
                 }
             }
@@ -178,7 +185,7 @@ object AiFilterSettingsView {
             content.addView(blockedCard)
 
             // Section 3: Substring Tag Blocklist
-            content.addView(createSectionHeader(activity, "SUBSTRING TAG BLOCKLIST", accentColor))
+            content.addView(createSectionHeader(activity, Strings.aiSubstringSection, accentColor))
             val subCard = createCard(activity, cardBgColor)
             val subFlow = FlowLayout(activity).apply {
                 val p = dpToPx(activity, 12f).toInt()
@@ -196,7 +203,7 @@ object AiFilterSettingsView {
                 }
             }
 
-            val subInputRow = createAddTagInputRow(activity, "Add keyword...", accentColor, textPrimaryColor, isDark) { newTag ->
+            val subInputRow = createAddTagInputRow(activity, Strings.aiAddKeyword, accentColor, textPrimaryColor, isDark) { newTag ->
                 AiFilterConfig.addSubstringBlocklistTag(activity, newTag)
                 refreshSubChips()
             }
@@ -206,7 +213,7 @@ object AiFilterSettingsView {
             content.addView(subCard)
 
             // Section 4: Exact Tag Blocklist
-            content.addView(createSectionHeader(activity, "EXACT TAG BLOCKLIST", accentColor))
+            content.addView(createSectionHeader(activity, Strings.aiExactSection, accentColor))
             val exactCard = createCard(activity, cardBgColor)
             val exactFlow = FlowLayout(activity).apply {
                 val p = dpToPx(activity, 12f).toInt()
@@ -224,7 +231,7 @@ object AiFilterSettingsView {
                 }
             }
 
-            val exactInputRow = createAddTagInputRow(activity, "Add exact tag...", accentColor, textPrimaryColor, isDark) { newTag ->
+            val exactInputRow = createAddTagInputRow(activity, Strings.aiAddExact, accentColor, textPrimaryColor, isDark) { newTag ->
                 AiFilterConfig.addExactBlocklistTag(activity, newTag)
                 refreshExactChips()
             }
@@ -234,7 +241,7 @@ object AiFilterSettingsView {
             content.addView(exactCard)
 
             // Section 5: Whitelist
-            content.addView(createSectionHeader(activity, "TAG WHITELIST (NEVER FLAGGED)", accentColor))
+            content.addView(createSectionHeader(activity, Strings.aiWhitelistSection, accentColor))
             val whiteCard = createCard(activity, cardBgColor)
             val whiteFlow = FlowLayout(activity).apply {
                 val p = dpToPx(activity, 12f).toInt()
@@ -252,7 +259,7 @@ object AiFilterSettingsView {
                 }
             }
 
-            val whiteInputRow = createAddTagInputRow(activity, "Add whitelist tag...", accentColor, textPrimaryColor, isDark) { newTag ->
+            val whiteInputRow = createAddTagInputRow(activity, Strings.aiAddWhitelist, accentColor, textPrimaryColor, isDark) { newTag ->
                 AiFilterConfig.addWhitelistTag(activity, newTag)
                 refreshWhiteChips()
             }
@@ -269,7 +276,7 @@ object AiFilterSettingsView {
                 setPadding(0, topP, 0, 0)
             }
             val resetButton = TextView(activity).apply {
-                text = "Reset Default Tags"
+                text = Strings.aiResetTags
                 textSize = 14f
                 setTextColor(textSecondaryColor)
                 val hp = dpToPx(activity, 16f).toInt()
@@ -282,16 +289,16 @@ object AiFilterSettingsView {
                 }
                 setOnClickListener {
                     AlertDialog.Builder(activity)
-                        .setTitle("Reset Tags")
-                        .setMessage("Restore default tag blocklists and clear the whitelist?")
-                        .setPositiveButton("Reset") { _, _ ->
+                        .setTitle(Strings.aiResetTitle)
+                        .setMessage(Strings.aiResetConfirm)
+                        .setPositiveButton(Strings.aiReset) { _, _ ->
                             AiFilterConfig.resetDefaultTags(activity)
                             refreshSubChips()
                             refreshExactChips()
                             refreshWhiteChips()
-                            Toast.makeText(activity, "Tags reset to defaults", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(activity, Strings.aiResetDone, Toast.LENGTH_SHORT).show()
                         }
-                        .setNegativeButton("Cancel", null)
+                        .setNegativeButton(Strings.aiCancel, null)
                         .show()
                 }
             }
@@ -301,9 +308,10 @@ object AiFilterSettingsView {
             scrollView.addView(content)
             root.addView(scrollView)
 
-            activity.setContentView(root)
+            return root
         } catch (t: Throwable) {
             android.util.Log.e("AiFilterSettingsView", "Failed to setup AI filter settings view", t)
+            return null
         }
     }
 
@@ -446,7 +454,7 @@ object AiFilterSettingsView {
         row.addView(editText)
 
         val addButton = TextView(context).apply {
-            text = "Add"
+            text = Strings.aiAdd
             textSize = 14f
             typeface = Typeface.DEFAULT_BOLD
             setTextColor(Color.WHITE)

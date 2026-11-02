@@ -25,18 +25,7 @@ val pixivAiFlaggerPatch: BytecodePatch = bytecodePatch(
             "invoke-static/range {p0 .. p1}, Lapp/morphe/extension/pixiv/aiflag/AiUiHelper;->onThumbnailBound(Landroid/view/ViewGroup;Ljava/lang/Object;)V"
         )
 
-        // --- Hook 2: AiShowSettingActivity.onCreate (Pixiv Settings screen override) ---
-        val settingsClass = mutableClassDefBy("Ljp/pxv/android/feature/setting/aishow/AiShowSettingActivity;")
-        val onCreateMethod = settingsClass.methods.first { it.name == "onCreate" }
-        onCreateMethod.addInstructions(
-            1,
-            """
-            invoke-static/range {p0 .. p0}, Lapp/morphe/extension/pixiv/aiflag/AiFilterSettingsView;->setup(Landroid/app/Activity;)V
-            return-void
-            """.trimIndent()
-        )
-
-        // --- Hook 3: DetailBottomBarView.setWork (Single AI warning banner & [AI] title pill) ---
+        // --- Hook 2: DetailBottomBarView.setWork (Single AI warning banner & [AI] title pill) ---
         val bottomBarClass = mutableClassDefBy("Ljp/pxv/android/feature/component/androidview/DetailBottomBarView;")
         val setWorkMethod = bottomBarClass.methods.first { it.name == "setWork" }
         setWorkMethod.addInstructions(
