@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-11-02T15:54:09",
-  "description": "## [1.0.3](https://github.com/Piracola/Pixiv-Patched/compare/v1.0.2...v1.0.3) (2026-11-02)\n\n### 🐛 Bug Fixes\n\n* **premium:** keep the shared illust/novel mapper on its original path ([a4781b4](https://github.com/Piracola/Pixiv-Patched/commit/a4781b469cdf351cacc8d429d9b60d1e61ef82f5))",
-  "download_url": "https://github.com/Piracola/Pixiv-Patched/releases/download/v1.0.3/patches-1.0.3.mpp",
+  "created_at": "2026-11-02T20:17:37",
+  "description": "## [1.1.0](https://github.com/Piracola/Pixiv-Patched/compare/v1.0.3...v1.1.0) (2026-11-02)\n\n### ✨ New Features\n\n* record browsing history locally and add a Pixiv-Patched settings page ([613443d](https://github.com/Piracola/Pixiv-Patched/commit/613443d1547812a2772c7294fcf402c69da33b1a))",
+  "download_url": "https://github.com/Piracola/Pixiv-Patched/releases/download/v1.1.0/patches-1.1.0.mpp",
   "signature_download_url": "",
-  "version": "1.0.3"
+  "version": "1.1.0"
 }

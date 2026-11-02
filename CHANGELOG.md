@@ -1,3 +1,9 @@
+## [1.1.0](https://github.com/Piracola/Pixiv-Patched/compare/v1.0.3...v1.1.0) (2026-11-02)
+
+### ✨ New Features
+
+* record browsing history locally and add a Pixiv-Patched settings page ([613443d](https://github.com/Piracola/Pixiv-Patched/commit/613443d1547812a2772c7294fcf402c69da33b1a))
+
 ## [1.0.3](https://github.com/Piracola/Pixiv-Patched/compare/v1.0.2...v1.0.3) (2026-11-02)
 
 ### 🐛 Bug Fixes
