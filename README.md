@@ -1,7 +1,7 @@
 # 🎨 PixivPatched
 
 面向 Pixiv 安卓版（`jp.pxv.android`）的 [Morphe](https://morphe.software) 补丁合集，可逐条开关：
-AI 作品标记、去广告、原图下载、客户端会员功能、热度搜索、OLED 纯黑主题、全屏查看器加速。
+AI 作品标记、去广告、原图下载、客户端会员功能、本地浏览记录、热度搜索、OLED 纯黑主题、全屏查看器加速。
 
 [![License: GPL-3.0](https://img.shields.io/badge/License-GPL%203.0-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Target App](https://img.shields.io/badge/目标版本-Pixiv%20v6.202.1-0096FA.svg)](https://play.google.com/store/apps/details?id=jp.pxv.android)
@@ -27,7 +27,9 @@ AI 作品标记、去广告、原图下载、客户端会员功能、热度搜�
 | 🤖 **AI Work Flagger** | 读取 Pixiv 自带的 `illustAiType` 标记（外加可自定义的标签黑名单）判断 AI 作品：缩略图变暗并加 `[AI]` 角标（也可以直接隐藏）、详情页顶部显示提示横幅、标题旁加 `[AI]` 标签、可自动屏蔽 AI 作者，并自带独立的设置界面。 |
 | 🚫 **Adblocker** | 去掉底部的横幅广告容器、拦截 AppLovin 插屏广告、屏蔽评分弹窗，并隐藏信息流和详情页里的推广作品。 |
 | 📥 **Downloader** | 在作品详情页（顶栏或底部栏）加保存按钮，把原图下载到 `Pictures/Pixiv`；多页作品可先选页，文件名带作品 id、标题与作者。Android 9 及以下会存到 App 私有目录（相册里看不到，路径会显示在提示里）。 |
-| ⭐ **Premium Features** | 模拟客户端的会员状态、解除屏蔽标签的数量上限、在服务端返回空列表时补上插画/漫画和小说的本地浏览历史。 |
+| ⭐ **Premium Features** | 模拟客户端的会员状态、解除屏蔽标签的数量上限。 |
+| 🕘 **Browsing History** | Pixiv 的浏览记录只下发给会员，所以改成在本机记录：打开过的插画、漫画和小说会存进手机，可在下面的 Pixiv-Patched 页面里查看、点开和清空。 |
+| 🏠 **Pixiv-Patched Settings Entry** | 在 Pixiv「设置」列表里把「投稿作品的自动翻译」那一行换成 **Pixiv-Patched**（原设置页被这条补丁替换），点开是独立页面：显示各补丁的运行状态和本地浏览记录。 |
 | 🔥 **Popular Search Unlock** | 无需订阅、也没有试用倒计时，直接解锁「按热度排序」（`popular_desc`）搜索标签页。 |
 | 🌑 **OLED Dark Theme** | 把暗色主题的表面/背景色改写为纯黑。 |
 | 🖼️ **Enhanced Viewer & Instant Zoom** | 全屏查看器先用该页的标准分辨率图（或详情页当前位图）做即时占位，原图加载期间就能缩放拖动，加载完成后无缝换成原图。 |
