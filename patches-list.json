@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "patches": [
     {
       "name": "Pixiv AI Work Flagger",
@@ -32,6 +32,33 @@
     {
       "name": "Pixiv Adblocker",
       "description": "Eliminates bottom advertising banners and interstitials across all screens without layout padding, suppresses rate-this-app dialogs, and hides sponsored works in feeds.",
+      "default": true,
+      "category": null,
+      "compatiblePackages": [
+        {
+          "packageName": "jp.pxv.android",
+          "name": "Pixiv",
+          "description": null,
+          "apkFileType": "APK",
+          "appIconColor": "#0096FA",
+          "signatures": null,
+          "formFactor": "MOBILE",
+          "targets": [
+            {
+              "version": "6.202.1",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            }
+          ]
+        }
+      ],
+      "options": []
+    },
+    {
+      "name": "Pixiv Browsing History",
+      "description": "Records the illustrations, manga and novels opened in the app into an on-device browsing history that is shown on the Pixiv-Patched page in settings.",
       "default": true,
       "category": null,
       "compatiblePackages": [
@@ -166,7 +193,61 @@
     },
     {
       "name": "Pixiv Premium Features",
-      "description": "Emulates client-side Pixiv Premium membership status, removes the mute list limits, and restores the illustration/manga and novel browsing history lists.",
+      "description": "Emulates client-side Pixiv Premium membership status and removes the mute list limits.",
+      "default": true,
+      "category": null,
+      "compatiblePackages": [
+        {
+          "packageName": "jp.pxv.android",
+          "name": "Pixiv",
+          "description": null,
+          "apkFileType": "APK",
+          "appIconColor": "#0096FA",
+          "signatures": null,
+          "formFactor": "MOBILE",
+          "targets": [
+            {
+              "version": "6.202.1",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            }
+          ]
+        }
+      ],
+      "options": []
+    },
+    {
+      "name": "Pixiv-Patched Settings Page",
+      "description": "Adds a Pixiv-Patched row to Pixiv's settings that opens a page with the state of every patch and the browsing history recorded on this device.",
+      "default": true,
+      "category": null,
+      "compatiblePackages": [
+        {
+          "packageName": "jp.pxv.android",
+          "name": "Pixiv",
+          "description": null,
+          "apkFileType": "APK",
+          "appIconColor": "#0096FA",
+          "signatures": null,
+          "formFactor": "MOBILE",
+          "targets": [
+            {
+              "version": "6.202.1",
+              "versionCodes": null,
+              "isExperimental": false,
+              "minSdk": null,
+              "description": null
+            }
+          ]
+        }
+      ],
+      "options": []
+    },
+    {
+      "name": "Pixiv-Patched Settings Row",
+      "description": "Turns the work auto-translation row of Pixiv's settings into the Pixiv-Patched entry that opens the patch page.",
       "default": true,
       "category": null,
       "compatiblePackages": [
