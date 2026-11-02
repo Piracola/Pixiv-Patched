@@ -1,6 +1,6 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "patches": [
     {
       "name": "Pixiv AI Work Flagger",
@@ -32,33 +32,6 @@
     {
       "name": "Pixiv Adblocker",
       "description": "Eliminates bottom advertising banners and interstitials across all screens without layout padding, suppresses rate-this-app dialogs, and hides sponsored works in feeds.",
-      "default": true,
-      "category": null,
-      "compatiblePackages": [
-        {
-          "packageName": "jp.pxv.android",
-          "name": "Pixiv",
-          "description": null,
-          "apkFileType": "APK",
-          "appIconColor": "#0096FA",
-          "signatures": null,
-          "formFactor": "MOBILE",
-          "targets": [
-            {
-              "version": "6.202.1",
-              "versionCodes": null,
-              "isExperimental": false,
-              "minSdk": null,
-              "description": null
-            }
-          ]
-        }
-      ],
-      "options": []
-    },
-    {
-      "name": "Pixiv Analytics Blocker",
-      "description": "Neutralizes Firebase Analytics screen tracking and Google Measurement telemetry for enhanced privacy.",
       "default": true,
       "category": null,
       "compatiblePackages": [
