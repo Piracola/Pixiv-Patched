@@ -33,27 +33,15 @@ object HistoryHelper {
         }
     }
 
-    /** Fallback for the illustration/manga history screen. */
+    /** True when the server returned nothing, so the caller should fall back to the local cache. */
     @JvmStatic
-    fun getHistoryList(response: Any?): List<*> = mergeWithLocal(response, "illusts", localIllusts)
+    fun isEmpty(list: List<*>?): Boolean = list.isNullOrEmpty()
 
-    /** Fallback for the novel history screen. */
     @JvmStatic
-    fun getNovelHistoryList(response: Any?): List<*> = mergeWithLocal(response, "novels", localNovels)
+    fun illustCache(): ArrayList<Any> = synchronized(localIllusts) { ArrayList(localIllusts) }
 
-    private fun mergeWithLocal(response: Any?, fieldName: String, cache: List<Any>): List<*> {
-        val serverList = runCatching {
-            response?.javaClass?.getDeclaredField(fieldName)
-                ?.apply { isAccessible = true }
-                ?.get(response) as? List<*>
-        }.getOrNull()
-
-        if (!serverList.isNullOrEmpty()) return serverList
-
-        return synchronized(cache) {
-            ArrayList(cache)
-        }
-    }
+    @JvmStatic
+    fun novelCache(): ArrayList<Any> = synchronized(localNovels) { ArrayList(localNovels) }
 
     private fun isIllust(work: Any): Boolean = work.javaClass.name in ILLUST_CLASS_NAMES
 

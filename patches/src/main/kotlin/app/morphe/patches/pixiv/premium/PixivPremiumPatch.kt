@@ -75,33 +75,33 @@ val pixivPremiumPatch: BytecodePatch = bytecodePatch(
             }
         }
 
-        // 6. IllustBrowsingHistoryResponse.illusts() -> fall back to the locally cached list when the
-        //    server returns an empty page for non-premium accounts.
-        val historyResponseClass = mutableClassDefByOrNull("Ljp/pxv/android/data/browsinghistory/remote/dto/IllustBrowsingHistoryResponse;")
-        historyResponseClass?.let { cls ->
-            val historyMethod = cls.methods.firstOrNull { it.name == "a" && it.returnType == "Ljava/util/List;" }
-            historyMethod?.addInstructions(
-                1,
-                """
-                invoke-static {p0}, Lapp/morphe/extension/pixiv/premium/HistoryHelper;->getHistoryList(Ljava/lang/Object;)Ljava/util/List;
-                move-result-object v0
-                return-object v0
-                """.trimIndent()
-            )
-        }
-
-        // 7. NovelBrowsingHistoryResponse.novels() -> same fallback for the novel history tab
-        val novelHistoryResponseClass = mutableClassDefByOrNull("Ljp/pxv/android/data/browsinghistory/remote/dto/NovelBrowsingHistoryResponse;")
-        novelHistoryResponseClass?.let { cls ->
-            val novelHistoryMethod = cls.methods.firstOrNull { it.name == "b" && it.returnType == "Ljava/util/List;" }
-            novelHistoryMethod?.addInstructions(
-                1,
-                """
-                invoke-static {p0}, Lapp/morphe/extension/pixiv/premium/HistoryHelper;->getNovelHistoryList(Ljava/lang/Object;)Ljava/util/List;
-                move-result-object v0
-                return-object v0
-                """.trimIndent()
-            )
+        // 6. v07.a/b map a page of history DTOs into the domain model the history screen renders.
+        //    When the server returns an empty page for a non-premium account, build the result from
+        //    the locally recorded works instead. Mapping a cache of domain objects through the
+        //    original code would fail its per-element check-cast, so the result is constructed here.
+        val historyMapperClass = mutableClassDefByOrNull("Lv07;")
+        historyMapperClass?.let { cls ->
+            for ((methodName, cacheGetter) in listOf("a" to "illustCache", "b" to "novelCache")) {
+                val mapper = cls.methods.firstOrNull {
+                    it.name == methodName && it.returnType == "Ls07;" && it.parameterTypes.size == 2
+                } ?: continue
+                mapper.addInstructions(
+                    0,
+                    """
+                    invoke-static {p2}, Lapp/morphe/extension/pixiv/premium/HistoryHelper;->isEmpty(Ljava/util/List;)Z
+                    move-result v0
+                    if-nez v0, :cond_orig
+                    invoke-static {}, Lapp/morphe/extension/pixiv/premium/HistoryHelper;->$cacheGetter()Ljava/util/ArrayList;
+                    move-result-object v1
+                    new-instance v2, Ls07;
+                    const/4 v0, 0x0
+                    invoke-direct {v2, v1, v0}, Ls07;-><init>(Ljava/util/ArrayList;Ljp/pxv/android/domain/commonentity/PageableNextUrl;)V
+                    return-object v2
+                    :cond_orig
+                    nop
+                    """.trimIndent()
+                )
+            }
         }
 
         // NOTE: recording opened works for the history fallback lives in PixivAiFlaggerPatch, which
