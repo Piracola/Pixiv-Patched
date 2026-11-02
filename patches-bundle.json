@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-11-02T20:17:37",
-  "description": "## [1.1.0](https://github.com/Piracola/Pixiv-Patched/compare/v1.0.3...v1.1.0) (2026-11-02)\n\n### ✨ New Features\n\n* record browsing history locally and add a Pixiv-Patched settings page ([613443d](https://github.com/Piracola/Pixiv-Patched/commit/613443d1547812a2772c7294fcf402c69da33b1a))",
-  "download_url": "https://github.com/Piracola/Pixiv-Patched/releases/download/v1.1.0/patches-1.1.0.mpp",
+  "created_at": "2026-11-02T23:46:44",
+  "description": "## [1.2.0](https://github.com/Piracola/Pixiv-Patched/compare/v1.1.0...v1.2.0) (2026-11-02)\n\n### ✨ New Features\n\n* move the Pixiv-Patched entry to the home drawer and localize it ([353b900](https://github.com/Piracola/Pixiv-Patched/commit/353b90008df6243ea18cc31686ca420857838831))",
+  "download_url": "https://github.com/Piracola/Pixiv-Patched/releases/download/v1.2.0/patches-1.2.0.mpp",
   "signature_download_url": "",
-  "version": "1.1.0"
+  "version": "1.2.0"
 }

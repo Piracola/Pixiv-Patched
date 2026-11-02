@@ -1,3 +1,9 @@
+## [1.2.0](https://github.com/Piracola/Pixiv-Patched/compare/v1.1.0...v1.2.0) (2026-11-02)
+
+### ✨ New Features
+
+* move the Pixiv-Patched entry to the home drawer and localize it ([353b900](https://github.com/Piracola/Pixiv-Patched/commit/353b90008df6243ea18cc31686ca420857838831))
+
 ## [1.1.0](https://github.com/Piracola/Pixiv-Patched/compare/v1.0.3...v1.1.0) (2026-11-02)
 
 ### ✨ New Features
