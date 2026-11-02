@@ -1,3 +1,9 @@
+## [1.0.2](https://github.com/Piracola/Pixiv-Patched/compare/v1.0.1...v1.0.2) (2026-11-02)
+
+### 🐛 Bug Fixes
+
+* repair downloader, viewer, adblocker and AI flagger against 6.202.1 ([1c00027](https://github.com/Piracola/Pixiv-Patched/commit/1c000271a0caeaf49a295893df421390e4ab8f89))
+
 ## [1.0.1](https://github.com/Piracola/Pixiv-Patched/compare/v1.0.0...v1.0.1) (2026-11-02)
 
 ### 🐛 Bug Fixes
