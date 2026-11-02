@@ -39,7 +39,7 @@ AI 作品标记、去广告、原图下载、客户端会员功能、热度搜�
 ## 🩹 补丁列表
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.0.2](https://github.com/Piracola/Pixiv-Patched/releases/tag/v1.0.2)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;7 patches total
+> **[v1.0.3](https://github.com/Piracola/Pixiv-Patched/releases/tag/v1.0.3)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;7 patches total
 <details open>
 <summary>📦 Pixiv&nbsp;&nbsp;•&nbsp;&nbsp;7 patches</summary>
 <br>
