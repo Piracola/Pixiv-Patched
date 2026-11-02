@@ -40,8 +40,30 @@ AI 作品标记、去广告、原图下载、客户端会员功能、热度搜�
 ## 🩹 补丁列表
 
 <!-- PATCHES_START EXPANDED -->
+> **[v1.0.0](https://github.com/Piracola/Pixiv-Patched/releases/tag/v1.0.0)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;8 patches total
+<details open>
+<summary>📦 Pixiv&nbsp;&nbsp;•&nbsp;&nbsp;8 patches</summary>
+<br>
 
-<!-- 这一节由 release.yml 在发版时自动生成，请勿手动修改。 -->
+**Package name:** `jp.pxv.android`
+
+**🎯 Supported versions:**
+
+| 6.202.1 |
+| :---: |
+
+| 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
+|----------|----------------|-----------|
+| [Pixiv AI Work Flagger](#pixiv-ai-work-flagger) | Identifies AI-generated works, dims thumbnails with an [AI] badge (or hides them completely), displays a full-width warning banner below the top toolbar on artwork detail, adds title [AI] pill, auto-blocks AI artists, and provides in-app settings with tag editor. |  |
+| [Pixiv Adblocker](#pixiv-adblocker) | Eliminates bottom advertising banners and interstitials across all screens without layout padding, suppresses rate-this-app dialogs, and hides sponsored works in feeds. |  |
+| [Pixiv Analytics Blocker](#pixiv-analytics-blocker) | Neutralizes Firebase Analytics screen tracking and Google Measurement telemetry for enhanced privacy. |  |
+| [Pixiv Downloader](#pixiv-downloader) | Adds a button to the illustration and manga detail view to download original full-quality artwork directly to your Photos library with clean metadata filenames. |  |
+| [Pixiv Enhanced Viewer & Instant Zoom](#pixiv-enhanced-viewer-instant-zoom) | Displays the standard-resolution artwork as an instant placeholder while the full-resolution image loads, allows immediate pinch-to-zoom/pan preserving zoom coordinates upon high-res load, and shows a discreet loading indicator. |  |
+| [Pixiv OLED Dark Theme](#pixiv-oled-dark-theme) | Overrides dark gray surface and background colors with pure pitch black (#ff000000) for OLED battery savings and true high-contrast dark mode. |  |
+| [Pixiv Popular Search Unlock](#pixiv-popular-search-unlock) | Unlocks sorting search results by popularity (popular_desc) without a premium subscription or trial countdown. |  |
+| [Pixiv Premium Features](#pixiv-premium-features) | Emulates client-side Pixiv Premium membership status, removes the mute list limits, and restores the browsing history endpoint output. |  |
+
+</details>
 
 <!-- PATCHES_END -->
 
