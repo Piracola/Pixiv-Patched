@@ -1,4 +1,4 @@
-rootProject.name = "PixivPatched"
+rootProject.name = "Pixiv-Patched"
 
 pluginManagement {
     repositories {

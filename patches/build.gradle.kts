@@ -4,10 +4,10 @@ patches {
     about {
         name = "PixivPatched"
         description = "Morphe patches for Pixiv Android (AI artwork flagger, adblocking, artwork downloader, premium features, OLED theme, analytics blocker, enhanced viewer)"
-        source = "https://github.com/Piracola/PixivPatched"
+        source = "https://github.com/Piracola/Pixiv-Patched"
         author = "Piracola"
         contact = "na"
-        website = "https://github.com/Piracola/PixivPatched"
+        website = "https://github.com/Piracola/Pixiv-Patched"
         license = "GNU General Public License v3.0"
     }
 }
