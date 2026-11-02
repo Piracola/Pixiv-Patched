@@ -1,3 +1,9 @@
+## [1.0.3](https://github.com/Piracola/Pixiv-Patched/compare/v1.0.2...v1.0.3) (2026-11-02)
+
+### 🐛 Bug Fixes
+
+* **premium:** keep the shared illust/novel mapper on its original path ([a4781b4](https://github.com/Piracola/Pixiv-Patched/commit/a4781b469cdf351cacc8d429d9b60d1e61ef82f5))
+
 ## [1.0.2](https://github.com/Piracola/Pixiv-Patched/compare/v1.0.1...v1.0.2) (2026-11-02)
 
 ### 🐛 Bug Fixes
