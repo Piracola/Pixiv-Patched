@@ -75,10 +75,11 @@ val pixivPremiumPatch: BytecodePatch = bytecodePatch(
             }
         }
 
-        // 6. v07.a/b map a page of history DTOs into the domain model the history screen renders.
-        //    When the server returns an empty page for a non-premium account, build the result from
-        //    the locally recorded works instead. Mapping a cache of domain objects through the
-        //    original code would fail its per-element check-cast, so the result is constructed here.
+        // 6. v07.a/b map a page of illust/novel DTOs into the domain list the list screens render.
+        //    This mapper is shared by every illust and novel list in the app, so the original code
+        //    must stay the only path unless the incoming page is empty AND the locally recorded
+        //    browsing history has something to show. Mapping the cache through the original loop
+        //    would fail its per-element check-cast, so the replacement object is built here.
         val historyMapperClass = mutableClassDefByOrNull("Lv07;")
         historyMapperClass?.let { cls ->
             for ((methodName, cacheGetter) in listOf("a" to "illustCache", "b" to "novelCache")) {
@@ -90,9 +91,12 @@ val pixivPremiumPatch: BytecodePatch = bytecodePatch(
                     """
                     invoke-static {p2}, Lapp/morphe/extension/pixiv/premium/HistoryHelper;->isEmpty(Ljava/util/List;)Z
                     move-result v0
-                    if-nez v0, :cond_orig
+                    if-eqz v0, :cond_orig
                     invoke-static {}, Lapp/morphe/extension/pixiv/premium/HistoryHelper;->$cacheGetter()Ljava/util/ArrayList;
                     move-result-object v1
+                    invoke-virtual {v1}, Ljava/util/ArrayList;->isEmpty()Z
+                    move-result v0
+                    if-eqz v0, :cond_orig
                     new-instance v2, Ls07;
                     const/4 v0, 0x0
                     invoke-direct {v2, v1, v0}, Ls07;-><init>(Ljava/util/ArrayList;Ljp/pxv/android/domain/commonentity/PageableNextUrl;)V
