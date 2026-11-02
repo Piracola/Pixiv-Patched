@@ -5,56 +5,81 @@ import java.util.LinkedList
 
 object HistoryHelper {
 
-    private val localHistory = Collections.synchronizedList(LinkedList<Any>())
+    private val localIllusts = Collections.synchronizedList(LinkedList<Any>())
+    private val localNovels = Collections.synchronizedList(LinkedList<Any>())
     private const val MAX_HISTORY = 100
 
+    /**
+     * Obfuscated PixivIllust class name for the pinned app version, pushed in from the patch so the
+     * extension can tell artworks and novels apart (both are passed to the same bottom bar).
+     */
+    @Volatile
+    private var illustClassName: String? = null
+
     @JvmStatic
-    fun recordView(illust: Any?) {
-        if (illust == null) return
+    fun setIllustClassName(name: String?) {
+        illustClassName = name
+    }
+
+    @JvmStatic
+    fun recordView(work: Any?) {
+        if (work == null) return
+        val bucket = if (isIllust(work)) localIllusts else localNovels
         try {
-            val id = getIllustId(illust) ?: return
-            synchronized(localHistory) {
+            val id = getWorkId(work) ?: return
+            synchronized(bucket) {
                 // Remove existing instance to move to front (most recent)
-                localHistory.removeAll { getIllustId(it) == id }
-                localHistory.add(0, illust)
-                if (localHistory.size > MAX_HISTORY) {
-                    localHistory.removeAt(localHistory.size - 1)
+                bucket.removeAll { getWorkId(it) == id }
+                bucket.add(0, work)
+                if (bucket.size > MAX_HISTORY) {
+                    bucket.removeAt(bucket.size - 1)
                 }
             }
-
         } catch (_: Throwable) {
         }
     }
 
+    /** Fallback for the illustration/manga history screen. */
     @JvmStatic
-    fun getHistoryList(response: Any?): List<*> {
-        try {
-            if (response != null) {
-                val illustsField = response.javaClass.getDeclaredField("illusts").apply { isAccessible = true }
-                val serverList = illustsField.get(response) as? List<*>
-                if (!serverList.isNullOrEmpty()) {
-                    return serverList
-                }
-            }
-        } catch (_: Throwable) {
-        }
-        return synchronized(localHistory) {
-            ArrayList(localHistory)
+    fun getHistoryList(response: Any?): List<*> = mergeWithLocal(response, "illusts", localIllusts)
+
+    /** Fallback for the novel history screen. */
+    @JvmStatic
+    fun getNovelHistoryList(response: Any?): List<*> = mergeWithLocal(response, "novels", localNovels)
+
+    private fun mergeWithLocal(response: Any?, fieldName: String, cache: List<Any>): List<*> {
+        val serverList = runCatching {
+            response?.javaClass?.getDeclaredField(fieldName)
+                ?.apply { isAccessible = true }
+                ?.get(response) as? List<*>
+        }.getOrNull()
+
+        if (!serverList.isNullOrEmpty()) return serverList
+
+        return synchronized(cache) {
+            ArrayList(cache)
         }
     }
 
-    private fun getIllustId(illust: Any?): String? {
-        if (illust == null) return null
+    private fun isIllust(work: Any): Boolean {
+        val expected = illustClassName ?: return true
+        val actual = work.javaClass.name
+        return actual == expected || actual == expected.removeSurrounding("L", ";")
+    }
+
+    private fun getWorkId(work: Any?): String? {
+        if (work == null) return null
         return runCatching {
-            illust.javaClass.getMethod("getId").invoke(illust)?.toString()
+            work.javaClass.getMethod("getId").invoke(work)?.toString()
         }.getOrNull() ?: runCatching {
-            var c: Class<*>? = illust.javaClass
+            var c: Class<*>? = work.javaClass
             var f: java.lang.reflect.Field? = null
             while (c != null && f == null) {
                 f = runCatching { c.getDeclaredField("id") }.getOrNull()
+                    ?: runCatching { c.getDeclaredField("a") }.getOrNull()
                 c = c.superclass
             }
-            f?.apply { isAccessible = true }?.get(illust)?.toString()
+            f?.apply { isAccessible = true }?.get(work)?.toString()
         }.getOrNull()
     }
 }
