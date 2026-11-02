@@ -1,6 +1,5 @@
 package app.morphe.extension.pixiv.aiflag
 
-import android.app.Activity
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
@@ -14,41 +13,65 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.RelativeLayout
 import android.widget.TextView
+import app.morphe.extension.pixiv.viewer.EnhancedViewerHelper
+import java.util.Collections
+import java.util.WeakHashMap
+import java.util.concurrent.ConcurrentHashMap
 
 object AiUiHelper {
 
     private const val TAG_AI_BADGE = "morphe_ai_badge"
     private const val TAG_DETAIL_AI_PILL = "morphe_detail_ai_pill"
     private const val TAG_DETAIL_AI_BANNER = "morphe_detail_ai_banner"
-    private const val RES_ID_TOOLBAR = 0x7f0a0599
+    private const val TAG_TITLE_ROW = "morphe_title_row"
 
-    @Volatile
-    private var dismissedIllustId: String? = null
+    /** Compared against the superclass chain, so app subclasses of RecyclerView match as well. */
+    private const val RECYCLER_VIEW_CLASS_NAME = "androidx.recyclerview.widget.RecyclerView"
+
+    /** Reflex safety stop while walking up to the RecyclerView; deeper than any Pixiv item layout. */
+    private const val ITEM_ROOT_MAX_DEPTH = 8
+
+    // Empirical values for the detail screen: toolbar (~56dp) + status bar (~32dp)
+    // + banner (~34dp) plus breathing margins. Tuned by eye on 6.202.1 - re-check visually before editing.
+    private const val DETAIL_HEADER_SPACE_DP = 102f
+    // Empirical: offset from the top of the padded header area down to the banner.
+    private const val DETAIL_BANNER_TOP_OFFSET_DP = 58f
+
+    private val resIds = ConcurrentHashMap<String, Int>()
+
+    /** Visibility and height an item had before "hide completely" collapsed it. */
+    private class ItemOriginalState(val visibility: Int, val height: Int)
+
+    // Original item state, so "hide completely" can collapse an item and restore it on recycle.
+    private val itemOriginals = Collections.synchronizedMap(WeakHashMap<View, ItemOriginalState>())
+
+    // Listener currently attached to each detail ImageView, replaced (not stacked) on every rebind.
+    // Weak keys: a View holds its whole parent tree, so a strong key would pin every detail screen.
+    private val detailLayoutListeners =
+        Collections.synchronizedMap(WeakHashMap<View, View.OnLayoutChangeListener>())
 
     @JvmStatic
     fun onThumbnailBound(thumbnailView: ViewGroup?, illust: Any?) {
         if (thumbnailView == null) return
         try {
             val context = thumbnailView.context
-            AiDetectionHelper.appContext = context.applicationContext
+            AiDetectionHelper.ensureContext(context)
 
             val actualIllust = AiDetectionHelper.unwrapIllust(illust) ?: illust
             val isAi = AiDetectionHelper.isAi(actualIllust)
             val imageView = findMainImageView(thumbnailView)
 
             if (isAi) {
-                val hideCompletely = AiFilterConfig.getHideCompletely(context)
-                if (hideCompletely) {
-                    thumbnailView.visibility = View.GONE
+                if (AiFilterConfig.getHideCompletely(context)) {
+                    hideItemCompletely(thumbnailView)
                 } else {
-                    thumbnailView.visibility = View.VISIBLE
+                    showItem(thumbnailView)
                     imageView?.alpha = 0.25f
                     showBadge(thumbnailView, context)
                 }
             } else {
-                thumbnailView.visibility = View.VISIBLE
+                showItem(thumbnailView)
                 imageView?.alpha = 1.0f
                 hideBadge(thumbnailView)
             }
@@ -61,67 +84,45 @@ object AiUiHelper {
     fun onDetailImageBound(viewHolder: Any?, illust: Any?) {
         try {
             if (viewHolder == null || illust == null) return
-            
-            var currentClass: Class<*>? = viewHolder.javaClass
-            var itemView: ViewGroup? = null
-            while (currentClass != null) {
-                try {
-                    val field = currentClass.getDeclaredField("itemView")
-                    field.isAccessible = true
-                    itemView = field.get(viewHolder) as? ViewGroup
-                    if (itemView != null) break
-                } catch (_: Exception) {
-                }
-                currentClass = currentClass.superclass
-            }
-            if (itemView == null) return
 
+            val itemView = itemViewOf(viewHolder) ?: return
             val context = itemView.context
             val actualIllust = AiDetectionHelper.unwrapIllust(illust) ?: illust
             val isAi = AiDetectionHelper.isAi(actualIllust)
 
-            var position = -1
-            try {
-                val getAdapterPos = viewHolder.javaClass.getMethod("getAbsoluteAdapterPosition")
-                position = getAdapterPos.invoke(viewHolder) as Int
-            } catch (_: Exception) {
-                try {
-                    val getLayoutPos = viewHolder.javaClass.getMethod("getLayoutPosition")
-                    position = getLayoutPos.invoke(viewHolder) as Int
-                } catch (_: Exception) {}
-            }
+            // The pager item carries the real page index (Llc2;->e:I); the adapter position of the
+            // ViewHolder is only a fallback, since it is -1 while detached and shift after recycling.
+            val pageIndex = AiDetectionHelper.pageIndex(illust) ?: adapterPositionOf(viewHolder)
 
-            var banner = itemView.findViewWithTag<View>(TAG_DETAIL_AI_BANNER)
-            val imgResId = context.resources.getIdentifier("image_view", "id", context.packageName)
-            val imageView = if (imgResId != 0) itemView.findViewById<View>(imgResId) else null
-
-            if (!isAi || position != 0) {
-                banner?.visibility = View.GONE
-                itemView.setPadding(0, 0, 0, 0)
+            if (!isAi || pageIndex != 0) {
+                itemView.findViewWithTag<View>(TAG_DETAIL_AI_BANNER)?.visibility = View.GONE
+                if (itemView.paddingTop != 0) itemView.setPadding(0, 0, 0, 0)
                 return
             }
 
-            // Dedicated header area above the image:
-            // Toolbar (56dp) + status bar (~32dp) + banner (~34dp) + breathing margins
-            val headerSpace = dpToPx(context, 102f).toInt()
-            itemView.setPadding(0, headerSpace, 0, 0)
-            itemView.clipToPadding = false
+            // Dedicated header area above the image.
+            val headerSpace = dpToPx(context, DETAIL_HEADER_SPACE_DP).toInt()
+            if (itemView.paddingTop != headerSpace) {
+                itemView.setPadding(0, headerSpace, 0, 0)
+                itemView.clipToPadding = false
+            }
 
-            // Position banner within the header gap, safely below the toolbar icons
-            val bannerOffsetFromTop = -headerSpace + dpToPx(context, 58f).toInt()
+            // Position the banner within the header gap, safely below the toolbar icons.
+            val bannerOffsetFromTop = -headerSpace + dpToPx(context, DETAIL_BANNER_TOP_OFFSET_DP).toInt()
 
+            var banner = itemView.findViewWithTag<View>(TAG_DETAIL_AI_BANNER)
             if (banner == null) {
                 banner = createInlineWarningBanner(context)
-                val lp = android.widget.FrameLayout.LayoutParams(
-                    android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
-                    android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+                val lp = FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
                 ).apply {
                     gravity = Gravity.TOP or Gravity.CENTER_HORIZONTAL
                     topMargin = bannerOffsetFromTop
                 }
                 itemView.addView(banner, lp)
             } else {
-                val lp = banner.layoutParams as? android.widget.FrameLayout.LayoutParams
+                val lp = banner.layoutParams as? FrameLayout.LayoutParams
                 if (lp != null && lp.topMargin != bannerOffsetFromTop) {
                     lp.topMargin = bannerOffsetFromTop
                     banner.layoutParams = lp
@@ -130,8 +131,7 @@ object AiUiHelper {
 
             banner.visibility = View.VISIBLE
             banner.bringToFront()
-        } catch (e: Throwable) {
-            e.printStackTrace()
+        } catch (_: Throwable) {
         }
     }
 
@@ -140,7 +140,7 @@ object AiUiHelper {
             tag = TAG_DETAIL_AI_BANNER
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
-            
+
             val padH = dpToPx(context, 14f).toInt()
             val padV = dpToPx(context, 6f).toInt()
             setPadding(padH, padV, padH + dpToPx(context, 2f).toInt(), padV)
@@ -216,31 +216,37 @@ object AiUiHelper {
             val isAi = AiDetectionHelper.isAi(actualIllust)
 
             val context = view.context
-            AiDetectionHelper.appContext = context.applicationContext
+            AiDetectionHelper.ensureContext(context)
             app.morphe.extension.pixiv.premium.HistoryHelper.recordView(actualIllust)
 
             // Cache current detail bitmap for instant fullscreen placeholder
             view.post {
                 try {
-                    val root = view.rootView
-                    val imgResId = context.resources.getIdentifier("image_view", "id", context.packageName)
-                    val iv = if (imgResId != 0) root?.findViewById<ImageView>(imgResId) else null
+                    val imgResId = idOf(context, "image_view")
+                    val iv = if (imgResId != 0) view.rootView?.findViewById<ImageView>(imgResId) else null
                     if (iv != null) {
-                        val grab = {
-                            val d = iv.drawable
-                            if (d is BitmapDrawable && d.bitmap != null && !d.bitmap.isRecycled) {
-                                app.morphe.extension.pixiv.viewer.EnhancedViewerHelper.setCachedDetailBitmap(d.bitmap, actualIllust)
-                            }
+                        grabSnapshot(iv, actualIllust)
+                        // setWork runs on every rebind: replace the listener the previous bind left
+                        // behind so they cannot pile up on the same ImageView.
+                        detailLayoutListeners.remove(iv)?.let { iv.removeOnLayoutChangeListener(it) }
+                        // The listener reads the view from its own argument instead of closing over it,
+                        // so the map's weak key is not kept alive by its own value.
+                        val listener = View.OnLayoutChangeListener { changed, _, _, _, _, _, _, _, _ ->
+                            (changed as? ImageView)?.let { grabSnapshot(it, actualIllust) }
                         }
-                        grab()
-                        iv.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ -> grab() }
+                        iv.addOnLayoutChangeListener(listener)
+                        detailLayoutListeners[iv] = listener
+                        // Two queued posts can reach the same ImageView: only the registered one stays.
+                        if (detailLayoutListeners[iv] !== listener) {
+                            iv.removeOnLayoutChangeListener(listener)
+                        }
                     }
                 } catch (_: Throwable) {
                 }
             }
 
             // 1. Maintain title pill metadata in bottom bar
-            val resId = context.resources.getIdentifier("title_text_view", "id", context.packageName)
+            val resId = idOf(context, "title_text_view")
             val titleView = if (resId != 0) {
                 view.findViewById<TextView>(resId)
             } else {
@@ -250,8 +256,7 @@ object AiUiHelper {
             if (titleView != null) {
                 val parentLayout = titleView.parent as? ViewGroup
                 if (parentLayout != null) {
-                    val rowTag = "morphe_title_row"
-                    var titleRow = parentLayout.findViewWithTag<LinearLayout>(rowTag)
+                    var titleRow = parentLayout.findViewWithTag<LinearLayout>(TAG_TITLE_ROW)
 
                     if (titleRow == null) {
                         if (parentLayout is LinearLayout && parentLayout.orientation == LinearLayout.VERTICAL) {
@@ -259,7 +264,7 @@ object AiUiHelper {
                             if (titleIdx >= 0) {
                                 parentLayout.removeView(titleView)
                                 titleRow = LinearLayout(context).apply {
-                                    tag = rowTag
+                                    tag = TAG_TITLE_ROW
                                     orientation = LinearLayout.HORIZONTAL
                                     gravity = Gravity.CENTER_VERTICAL
                                     layoutParams = LinearLayout.LayoutParams(
@@ -319,9 +324,6 @@ object AiUiHelper {
                     }
                 }
             }
-
-            // 2. Display prominent full-width warning banner below toolbar
-            // showDetailAiBanner(view, actualIllust, isAi) // Replaced by inline banner above page 0
         } catch (_: Throwable) {
         }
     }
@@ -344,219 +346,101 @@ object AiUiHelper {
         }
     }
 
-    private fun showDetailAiBanner(anchorView: View, illust: Any?, isAi: Boolean) {
-        val coordinator = findCoordinatorLayout(anchorView)
-            ?: (anchorView.rootView as? ViewGroup)
-            ?: (anchorView.context as? Activity)?.findViewById(android.R.id.content)
-            ?: return
-
-        var banner = coordinator.findViewWithTag<View>(TAG_DETAIL_AI_BANNER)
-        val context = coordinator.context
-        val currentIllustId = getIllustId(illust)
-
-        if (!isAi) {
-            banner?.visibility = View.GONE
-            return
-        }
-
-        // If the user manually dismissed the banner on this artwork, respect their decision
-        if (currentIllustId != null && currentIllustId == dismissedIllustId) {
-            banner?.visibility = View.GONE
-            return
-        }
-
-        if (banner == null) {
-            banner = createWarningBanner(context) {
-                if (currentIllustId != null) {
-                    dismissedIllustId = currentIllustId
-                }
+    private fun itemViewOf(viewHolder: Any): ViewGroup? {
+        var currentClass: Class<*>? = viewHolder.javaClass
+        while (currentClass != null) {
+            try {
+                val field = currentClass.getDeclaredField("itemView")
+                field.isAccessible = true
+                val view = field.get(viewHolder) as? ViewGroup
+                if (view != null) return view
+            } catch (_: Throwable) {
             }
-            coordinator.addView(banner)
-        }
-
-        banner.visibility = View.VISIBLE
-        banner.alpha = 1f
-        banner.bringToFront()
-
-        val toolbar = findToolbar(coordinator)
-        if (toolbar != null) {
-            fun updatePosition() {
-                val top = if (toolbar.bottom > 0) toolbar.bottom else (toolbar.top + toolbar.height)
-                if (top > 0) {
-                    banner.translationY = top.toFloat()
-                }
-            }
-
-            updatePosition()
-            toolbar.post { updatePosition() }
-
-            val existingListener = banner.getTag(RES_ID_TOOLBAR) as? View.OnLayoutChangeListener
-            if (existingListener != null) {
-                toolbar.removeOnLayoutChangeListener(existingListener)
-            }
-            val newListener = View.OnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
-                updatePosition()
-            }
-            banner.setTag(RES_ID_TOOLBAR, newListener)
-            toolbar.addOnLayoutChangeListener(newListener)
-        } else {
-            banner.translationY = dpToPx(context, 80f)
-        }
-    }
-
-    private fun createWarningBanner(context: Context, onDismiss: () -> Unit): View {
-        val banner = RelativeLayout(context).apply {
-            tag = TAG_DETAIL_AI_BANNER
-            val padH = dpToPx(context, 16f).toInt()
-            val padV = dpToPx(context, 9f).toInt()
-            setPadding(padH, padV, padH, padV)
-
-            // Deep warning red with high contrast (~94% opacity)
-            val bg = GradientDrawable().apply {
-                shape = GradientDrawable.RECTANGLE
-                setColor(0xF0B91C1C.toInt())
-            }
-            background = bg
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                elevation = dpToPx(context, 4f)
-            }
-
-            layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
-        }
-
-        // Centered warning text: "⚠ AI-Generated Work"
-        val textView = TextView(context).apply {
-            text = "⚠  AI-Generated Work"
-            textSize = 13.5f
-            typeface = Typeface.DEFAULT_BOLD
-            setTextColor(Color.WHITE)
-            gravity = Gravity.CENTER
-            includeFontPadding = false
-            setShadowLayer(dpToPx(context, 1.5f), 0f, dpToPx(context, 1f), 0x80000000.toInt())
-
-            val lp = RelativeLayout.LayoutParams(
-                RelativeLayout.LayoutParams.WRAP_CONTENT,
-                RelativeLayout.LayoutParams.WRAP_CONTENT
-            ).apply {
-                addRule(RelativeLayout.CENTER_IN_PARENT)
-            }
-            layoutParams = lp
-        }
-        banner.addView(textView)
-
-        // Dismiss '✕' button on the far right
-        val closeButton = TextView(context).apply {
-            text = "✕"
-            textSize = 14f
-            typeface = Typeface.DEFAULT_BOLD
-            setTextColor(0xCCFFFFFF.toInt())
-            val p = dpToPx(context, 6f).toInt()
-            setPadding(p, p, p, p)
-
-            val lp = RelativeLayout.LayoutParams(
-                RelativeLayout.LayoutParams.WRAP_CONTENT,
-                RelativeLayout.LayoutParams.WRAP_CONTENT
-            ).apply {
-                addRule(RelativeLayout.ALIGN_PARENT_END)
-                addRule(RelativeLayout.CENTER_VERTICAL)
-            }
-            layoutParams = lp
-
-            setOnClickListener {
-                onDismiss()
-                banner.animate()
-                    .alpha(0f)
-                    .setDuration(150)
-                    .withEndAction { banner.visibility = View.GONE }
-                    .start()
-            }
-        }
-        banner.addView(closeButton)
-
-        return banner
-    }
-
-    private fun findCoordinatorLayout(view: View): ViewGroup? {
-        var curr: View? = view
-        while (curr != null) {
-            val parent = curr.parent
-            if (parent is ViewGroup) {
-                if (parent.javaClass.name.contains("CoordinatorLayout")) {
-                    return parent
-                }
-            }
-            curr = parent as? View
-        }
-
-        val resId = view.context.resources.getIdentifier("illust_detail_view", "id", view.context.packageName)
-        if (resId != 0) {
-            val found = view.rootView?.findViewById<ViewGroup>(resId)
-            if (found != null) return found
-        }
-
-        val root = view.rootView as? ViewGroup
-        if (root != null) {
-            return findViewGroupByClassName(root, "CoordinatorLayout")
-        }
-
-        return null
-    }
-
-    private fun findViewGroupByClassName(group: ViewGroup, targetSubstring: String): ViewGroup? {
-        if (group.javaClass.name.contains(targetSubstring)) return group
-        for (i in 0 until group.childCount) {
-            val child = group.getChildAt(i)
-            if (child is ViewGroup) {
-                val found = findViewGroupByClassName(child, targetSubstring)
-                if (found != null) return found
-            }
+            currentClass = currentClass.superclass
         }
         return null
     }
 
-    private fun findToolbar(container: ViewGroup): View? {
-        val resId = container.context.resources.getIdentifier("tool_bar", "id", container.context.packageName)
-        if (resId != 0) {
-            val tb = container.findViewById<View>(resId)
-            if (tb != null) return tb
-        }
-        for (i in 0 until container.childCount) {
-            val child = container.getChildAt(i)
-            if (child.javaClass.name.contains("Toolbar")) {
-                return child
+    private fun adapterPositionOf(viewHolder: Any): Int {
+        for (methodName in arrayOf("getAbsoluteAdapterPosition", "getLayoutPosition", "getAdapterPosition")) {
+            try {
+                val position = viewHolder.javaClass.getMethod(methodName).invoke(viewHolder) as? Int
+                if (position != null && position >= 0) return position
+            } catch (_: Throwable) {
             }
         }
-        val rootTb = container.rootView?.findViewById<View>(resId)
-        if (rootTb != null) return rootTb
+        return -1
+    }
 
+    /** Hands the detail screen's current bitmap to the viewer; it keeps its own copy. */
+    private fun grabSnapshot(imageView: ImageView, illust: Any?) {
+        try {
+            val drawable = imageView.drawable
+            if (drawable is BitmapDrawable && drawable.bitmap != null && !drawable.bitmap.isRecycled) {
+                EnhancedViewerHelper.setCachedDetailBitmap(drawable.bitmap, illust)
+            }
+        } catch (_: Throwable) {
+        }
+    }
+
+    /** The item root: the closest ancestor that is a direct child of a RecyclerView. */
+    private fun itemRootOf(view: View): ViewGroup? {
+        var root = view as? ViewGroup ?: return null
+        repeat(ITEM_ROOT_MAX_DEPTH) {
+            val parent = root.parent as? ViewGroup ?: return null
+            if (isRecyclerView(parent)) return root
+            root = parent
+        }
         return null
     }
 
-    private fun getIllustId(illust: Any?): String? {
-        if (illust == null) return null
-        val actual = AiDetectionHelper.unwrapIllust(illust) ?: illust
-        return runCatching {
-            val m = actual.javaClass.getMethod("getId")
-            m.invoke(actual)?.toString()
-        }.getOrNull() ?: runCatching {
-            var c: Class<*>? = actual.javaClass
-            var f: java.lang.reflect.Field? = null
-            while (c != null && f == null) {
-                f = runCatching { c.getDeclaredField("id") }.getOrNull()
-                    ?: runCatching { c.getDeclaredField("a") }.getOrNull()
-                c = c.superclass
-            }
-            f?.apply { isAccessible = true }?.get(actual)?.toString()
-        }.getOrNull()
+    /** True for androidx RecyclerView and every app subclass of it; the host is not always the base class. */
+    private fun isRecyclerView(view: View): Boolean {
+        var clazz: Class<*>? = view.javaClass
+        while (clazz != null) {
+            if (clazz.name == RECYCLER_VIEW_CLASS_NAME) return true
+            clazz = clazz.superclass
+        }
+        return false
+    }
+
+    /**
+     * "Hide completely" must not leave a grid hole: ThumbnailView is the only child of the item root
+     * (feature_commonlist_view_illust_item.xml), so collapse the root as well and restore it later.
+     * Everything is resolved before anything is touched - a half applied hide is worse than none.
+     */
+    private fun hideItemCompletely(thumbnailView: ViewGroup) {
+        val itemRoot = itemRootOf(thumbnailView) ?: return
+        val lp = itemRoot.layoutParams ?: return
+        if (!itemOriginals.containsKey(itemRoot)) {
+            itemOriginals[itemRoot] = ItemOriginalState(itemRoot.visibility, lp.height)
+        }
+        thumbnailView.visibility = View.GONE
+        if (itemRoot.visibility != View.GONE) itemRoot.visibility = View.GONE
+        if (lp.height != 0) {
+            lp.height = 0
+            itemRoot.layoutParams = lp
+        }
+    }
+
+    private fun showItem(thumbnailView: ViewGroup) {
+        val itemRoot = itemRootOf(thumbnailView)
+        val original = itemRoot?.let { itemOriginals.remove(it) }
+
+        if (thumbnailView.visibility != View.VISIBLE) thumbnailView.visibility = View.VISIBLE
+        if (itemRoot == null || original == null) return
+
+        // Restore what the app had, not a hard coded VISIBLE / wrap_content.
+        if (itemRoot.visibility != original.visibility) itemRoot.visibility = original.visibility
+        val lp = itemRoot.layoutParams ?: return
+        if (lp.height != original.height) {
+            lp.height = original.height
+            itemRoot.layoutParams = lp
+        }
     }
 
     private fun findMainImageView(viewGroup: ViewGroup): ImageView? {
-        val context = viewGroup.context
-        val resId = context.resources.getIdentifier("image_view", "id", context.packageName)
+        val resId = idOf(viewGroup.context, "image_view")
         if (resId != 0) {
             val iv = viewGroup.findViewById<ImageView>(resId)
             if (iv != null) return iv
@@ -618,6 +502,14 @@ object AiUiHelper {
     private fun hideBadge(parent: ViewGroup) {
         val badge = parent.findViewWithTag<View>(TAG_AI_BADGE)
         badge?.visibility = View.GONE
+    }
+
+    private fun idOf(context: Context, name: String): Int = resIds.getOrPut(name) {
+        try {
+            context.resources.getIdentifier(name, "id", context.packageName)
+        } catch (_: Throwable) {
+            0
+        }
     }
 
     private fun dpToPx(context: Context, dp: Float): Float {

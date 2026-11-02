@@ -22,6 +22,28 @@ object AdblockHelper {
         }
     }
 
+    /**
+     * Collapses the bottom banner frame (Lvy6;) of the illustration detail, fullscreen and novel text
+     * screens. The frame is sized to 50dp plus 8dp top/bottom margin and keeps its own opaque
+     * background, so hiding only its children leaves a 66dp strip behind.
+     */
+    @JvmStatic
+    fun collapseOverlayFrame(frame: View?) {
+        if (frame == null) return
+        try {
+            frame.visibility = View.GONE
+            frame.layoutParams?.let { lp ->
+                lp.width = 0
+                lp.height = 0
+                if (lp is ViewGroup.MarginLayoutParams) {
+                    lp.setMargins(0, 0, 0, 0)
+                }
+                frame.layoutParams = lp
+            }
+        } catch (_: Throwable) {
+        }
+    }
+
     @JvmStatic
     fun collapseMainActivityBanner(activity: Activity?) {
         if (activity == null) return
