@@ -1,6 +1,6 @@
 {
-  "created_at": "2026-11-02T14:04:30",
-  "description": "## [1.0.1](https://github.com/Piracola/Pixiv-Patched/compare/v1.0.0...v1.0.1) (2026-11-02)\n\n### 🐛 Bug Fixes\n\n* **premium:** restore novel browsing history and stop mixing novels into the illust list ([3da59e7](https://github.com/Piracola/Pixiv-Patched/commit/3da59e72185f2ffb9e69bcf7adf2f247a18deeba))",
+  "created_at": "2026-11-02T14:13:53",
+  "description": "## [1.0.1](https://github.com/Piracola/Pixiv-Patched/compare/v1.0.0...v1.0.1) (2026-11-02)\n\n### 🐛 Bug Fixes\n\n* **premium:** add novel history fallback without clobbering setWork registers ([cd371a9](https://github.com/Piracola/Pixiv-Patched/commit/cd371a9e028466316e6a36c74ed945886f41bb97))\n* **premium:** fall back to local history at the mapping layer instead of returning domain objects from the DTO getters ([f667e6a](https://github.com/Piracola/Pixiv-Patched/commit/f667e6a3165ebd523c15cb86cab0eabea6d256c6))\n* **premium:** restore novel browsing history and stop mixing novels into the illust list ([3da59e7](https://github.com/Piracola/Pixiv-Patched/commit/3da59e72185f2ffb9e69bcf7adf2f247a18deeba))",
   "download_url": "https://github.com/Piracola/Pixiv-Patched/releases/download/v1.0.1/patches-1.0.1.mpp",
   "signature_download_url": "",
   "version": "1.0.1"
