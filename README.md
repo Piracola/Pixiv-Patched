@@ -41,7 +41,7 @@ AI 作品标记、去广告、原图下载、客户端会员功能、本地浏�
 ## 🩹 补丁列表
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.2.0](https://github.com/Piracola/Pixiv-Patched/releases/tag/v1.2.0)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;9 patches total
+> **[v1.3.0](https://github.com/Piracola/Pixiv-Patched/releases/tag/v1.3.0)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;9 patches total
 <details open>
 <summary>📦 Pixiv&nbsp;&nbsp;•&nbsp;&nbsp;9 patches</summary>
 <br>
@@ -57,7 +57,7 @@ AI 作品标记、去广告、原图下载、客户端会员功能、本地浏�
 |----------|----------------|-----------|
 | [Pixiv AI Work Flagger](#pixiv-ai-work-flagger) | Identifies AI-generated works, dims thumbnails with an [AI] badge (or hides them completely), displays a full-width warning banner below the top toolbar on artwork detail, adds title [AI] pill, auto-blocks AI artists, and provides in-app settings with tag editor. |  |
 | [Pixiv Adblocker](#pixiv-adblocker) | Eliminates bottom advertising banners and interstitials across all screens without layout padding, suppresses rate-this-app dialogs, and hides sponsored works in feeds. |  |
-| [Pixiv Browsing History](#pixiv-browsing-history) | Records the illustrations, manga and novels opened in the app into an on-device browsing history that is shown on the Pixiv-Patched page in settings. |  |
+| [Pixiv Browsing History](#pixiv-browsing-history) | Records the illustrations, manga and novels opened in the app into an on-device browsing history, and shows it in the app's own history screen (manga and novels apart) instead of Pixiv's server-side list. |  |
 | [Pixiv Downloader](#pixiv-downloader) | Adds a button to the illustration and manga detail view to download original full-quality artwork directly to your Photos library with clean metadata filenames. |  |
 | [Pixiv Enhanced Viewer & Instant Zoom](#pixiv-enhanced-viewer-instant-zoom) | Displays the standard-resolution artwork as an instant placeholder while the full-resolution image loads, allows immediate pinch-to-zoom/pan preserving zoom coordinates upon high-res load, and shows a discreet loading indicator. |  |
 | [Pixiv OLED Dark Theme](#pixiv-oled-dark-theme) | Overrides dark gray surface and background colors with pure pitch black (#ff000000) for OLED battery savings and true high-contrast dark mode. |  |
