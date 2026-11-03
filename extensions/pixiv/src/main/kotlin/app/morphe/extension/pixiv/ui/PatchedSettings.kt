@@ -104,7 +104,12 @@ object PatchedSettings {
         if (palette.dark) android.R.style.Theme_Material_NoActionBar
         else android.R.style.Theme_Material_Light_NoActionBar
 
-    private fun buildToolbar(context: Context, palette: Palette, onBack: () -> Unit): View =
+    private fun buildToolbar(
+        context: Context,
+        palette: Palette,
+        title: String = Strings.pageTitle,
+        onBack: () -> Unit
+    ): View =
         LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
@@ -126,7 +131,7 @@ object PatchedSettings {
             )
             addView(
                 TextView(context).apply {
-                    text = Strings.pageTitle
+                    text = title
                     textSize = 18f
                     typeface = Typeface.DEFAULT_BOLD
                     setTextColor(palette.primary)
@@ -202,6 +207,146 @@ object PatchedSettings {
             }
         )
 
+        return ScrollView(context).apply {
+            setBackgroundColor(palette.background)
+            addView(column)
+        }
+    }
+
+    @JvmStatic
+    fun setupHistory(activity: Activity) {
+        try {
+            val palette = Palette(activity)
+            val root = LinearLayout(activity).apply {
+                orientation = LinearLayout.VERTICAL
+                setBackgroundColor(palette.background)
+            }
+            root.addView(buildToolbar(activity, palette, Strings.historySection) { activity.finish() })
+            val holder = LinearLayout(activity).apply {
+                orientation = LinearLayout.VERTICAL
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    0,
+                    1f
+                )
+            }
+            var tab = HistoryStore.KIND_ILLUST
+            fun render() {
+                holder.removeAllViews()
+                holder.addView(buildTabs(activity, palette, tab) { next ->
+                    tab = next
+                    render()
+                })
+                holder.addView(buildHistoryList(activity, palette, tab) { render() })
+            }
+            render()
+            root.addView(holder)
+            activity.setContentView(root)
+        } catch (t: Throwable) {
+            Toast.makeText(activity, "${Strings.pageTitle}: ${t.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun buildTabs(
+        context: Context,
+        palette: Palette,
+        selected: String,
+        onSelect: (String) -> Unit
+    ): View {
+        val row = LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            setBackgroundColor(palette.card)
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                dp(context, 48f)
+            )
+        }
+        listOf(
+            HistoryStore.KIND_ILLUST to Strings.historyIllustTab,
+            HistoryStore.KIND_NOVEL to Strings.historyNovelTab
+        ).forEach { (kind, label) ->
+            val active = kind == selected
+            row.addView(
+                LinearLayout(context).apply {
+                    orientation = LinearLayout.VERTICAL
+                    gravity = Gravity.CENTER
+                    layoutParams = LinearLayout.LayoutParams(
+                        0,
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        1f
+                    )
+                    setOnClickListener { onSelect(kind) }
+                    addView(
+                        TextView(context).apply {
+                            text = label
+                            textSize = 15f
+                            gravity = Gravity.CENTER
+                            layoutParams = LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.MATCH_PARENT,
+                                LinearLayout.LayoutParams.WRAP_CONTENT
+                            )
+                            setTextColor(if (active) palette.primary else palette.secondary)
+                            if (active) typeface = Typeface.DEFAULT_BOLD
+                        }
+                    )
+                    addView(
+                        View(context).apply {
+                            setBackgroundColor(if (active) palette.accent else 0x00000000)
+                            layoutParams = LinearLayout.LayoutParams(
+                                dp(context, 28f),
+                                dp(context, 3f)
+                            ).also { it.topMargin = dp(context, 6f) }
+                        }
+                    )
+                }
+            )
+        }
+        return row
+    }
+
+    private fun buildHistoryList(
+        context: Context,
+        palette: Palette,
+        kind: String,
+        onCleared: () -> Unit
+    ): View {
+        val column = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(context, 16f), dp(context, 8f), dp(context, 16f), dp(context, 24f))
+        }
+        val entries = HistoryStore.entries(context).filter { it.kind == kind }
+        if (entries.isEmpty()) {
+            column.addView(
+                TextView(context).apply {
+                    text = if (kind == HistoryStore.KIND_NOVEL) Strings.historyEmptyNovel
+                    else Strings.historyEmptyIllust
+                    textSize = 13f
+                    setTextColor(palette.secondary)
+                    setPadding(dp(context, 4f), dp(context, 8f), dp(context, 4f), dp(context, 12f))
+                }
+            )
+        } else {
+            val historyCard = card(context, palette)
+            entries.forEachIndexed { index, entry ->
+                if (index > 0) historyCard.addView(divider(context, palette))
+                historyCard.addView(historyRow(context, palette, entry, showKind = false))
+            }
+            column.addView(historyCard)
+            column.addView(
+                TextView(context).apply {
+                    text = Strings.clearHistory
+                    textSize = 14f
+                    gravity = Gravity.CENTER
+                    setTextColor(palette.accent)
+                    setPadding(0, dp(context, 16f), 0, dp(context, 16f))
+                    setOnClickListener {
+                        HistoryStore.clearKind(context, kind)
+                        Toast.makeText(context, Strings.historyCleared, Toast.LENGTH_SHORT).show()
+                        onCleared()
+                    }
+                }
+            )
+        }
         return ScrollView(context).apply {
             setBackgroundColor(palette.background)
             addView(column)
@@ -311,7 +456,12 @@ object PatchedSettings {
         }
     }
 
-    private fun historyRow(context: Context, palette: Palette, entry: HistoryStore.Entry): View =
+    private fun historyRow(
+        context: Context,
+        palette: Palette,
+        entry: HistoryStore.Entry,
+        showKind: Boolean = true
+    ): View =
         LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
@@ -359,14 +509,17 @@ object PatchedSettings {
                 }
             )
 
-            addView(
-                TextView(context).apply {
-                    text = if (entry.kind == HistoryStore.KIND_NOVEL) Strings.kindNovel else Strings.kindIllust
-                    textSize = 11f
-                    setTextColor(palette.secondary)
-                    setPadding(dp(context, 8f), 0, 0, 0)
-                }
-            )
+            if (showKind) {
+                addView(
+                    TextView(context).apply {
+                        text = if (entry.kind == HistoryStore.KIND_NOVEL) Strings.kindNovel
+                        else Strings.kindIllust
+                        textSize = 11f
+                        setTextColor(palette.secondary)
+                        setPadding(dp(context, 8f), 0, 0, 0)
+                    }
+                )
+            }
         }
 
     private fun loadThumb(context: Context, url: String, target: ImageView) {

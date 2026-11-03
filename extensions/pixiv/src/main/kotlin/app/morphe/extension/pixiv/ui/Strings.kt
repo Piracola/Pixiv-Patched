@@ -34,6 +34,19 @@ object Strings {
     val kindIllust: String get() = pick("插画", "イラスト", "Illustration")
     val kindNovel: String get() = pick("小说", "小説", "Novel")
 
+    val historyIllustTab: String get() = pick("漫画", "マンガ", "Manga")
+    val historyNovelTab: String get() = pick("小说", "小説", "Novels")
+    val historyEmptyIllust: String get() = pick(
+        "还没有漫画记录。打开任意插画或漫画后会自动记录在这里。",
+        "マンガの記録はまだありません。イラストやマンガを開くと自動で記録されます。",
+        "No manga yet. Open any illustration or manga and it will show up here."
+    )
+    val historyEmptyNovel: String get() = pick(
+        "还没有小说记录。打开任意小说后会自动记录在这里。",
+        "小説の記録はまだありません。小説を開くと自動で記録されます。",
+        "No novels yet. Open any novel and it will show up here."
+    )
+
     val settingsSection: String get() = pick("设置", "設定", "Settings")
     val aiSettingsEntry: String get() = pick("AI 作品显示设置", "AI作品の表示設定", "AI work display settings")
     val aiSettingsHint: String get() = pick(
