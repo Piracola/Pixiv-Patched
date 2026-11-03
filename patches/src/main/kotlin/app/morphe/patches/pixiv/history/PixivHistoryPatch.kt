@@ -17,7 +17,7 @@ import app.morphe.patcher.patch.bytecodePatch
  */
 val pixivHistoryPatch: BytecodePatch = bytecodePatch(
     name = "Pixiv Browsing History",
-    description = "Records the illustrations, manga and novels opened in the app into an on-device browsing history that is shown on the Pixiv-Patched page in settings.",
+    description = "Records the illustrations, manga and novels opened in the app into an on-device browsing history, and shows it in the app's own history screen (manga and novels apart) instead of Pixiv's server-side list.",
     default = true
 ) {
     compatibleWith(PixivConstants.PIXIV)
@@ -52,6 +52,19 @@ val pixivHistoryPatch: BytecodePatch = bytecodePatch(
             ?.addInstructions(
                 0,
                 "invoke-static/range {p1 .. p4}, Lapp/morphe/extension/pixiv/history/HistoryRecorder;->recordNovel(JLjava/lang/String;Ljava/lang/Object;)V"
+            )
+
+        // The history list screen asks Pixiv's API for the account history (premium only), so the
+        // local list takes that screen over instead.
+        val historyActivity =
+            mutableClassDefByOrNull("Ljp/pxv/android/feature/browsinghistory/list/BrowsingHistoryActivity;")
+        historyActivity?.methods?.firstOrNull { it.name == "onCreate" && it.parameterTypes.size == 1 }
+            ?.addInstructions(
+                1,
+                """
+                invoke-static/range {p0 .. p0}, Lapp/morphe/extension/pixiv/ui/PatchedSettings;->setupHistory(Landroid/app/Activity;)V
+                return-void
+                """.trimIndent()
             )
     }
 }

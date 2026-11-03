@@ -73,6 +73,17 @@ object HistoryStore {
         }
     }
 
+    @JvmStatic
+    fun clearKind(context: Context?, kind: String) {
+        if (context == null) return
+        try {
+            synchronized(lock) {
+                save(context, load(context).filterNot { it.kind == kind })
+            }
+        } catch (_: Throwable) {
+        }
+    }
+
     private fun prefs(context: Context) =
         context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
