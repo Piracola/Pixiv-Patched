@@ -32,6 +32,7 @@ AI 作品标记、去广告、原图下载、客户端会员功能、本地浏�
 | 🏠 **Pixiv-Patched Drawer Entry** | 在 Pixiv 主页侧边栏最底部加一行 **Pixiv-Patched**，点开是独立页面：显示各补丁的运行状态、AI 作品显示设置入口和本地浏览记录。不占用也不改动任何官方设置项。 |
 | 🔥 **Popular Search Trial** | 把试用期的 7 天倒计时钉住：账号处在试用中时一直留在试用版热门标签页，不会在第七天后掉回付费预览页。排序本身由服务端决定，本来就没试用资格的免费账号不受影响。 |
 | 🧪 **Popular Search Unlock** | 实验性：把搜索页里的会员标志伪造成 true，让 App 去请求 `popular_desc`。排序由服务端判定，免费账号拿到的仍是时间序，默认不开。 |
+| 🔎 **Search Ranking** | 给热门标签页填真数据：`热度预览` 直接换成 Pixiv 免费下发的那份热度榜（约 30 张，服务端真的按热度排），`按收藏重排` 把当前页按 `total_bookmarks` 重新排一遍。在 Pixiv-Patched 页里点一下切换，默认关闭。 |
 | 🌑 **OLED Dark Theme** | 把暗色主题的表面/背景色改写为纯黑。 |
 | 🖼️ **Enhanced Viewer & Instant Zoom** | 全屏查看器先用该页的标准分辨率图（或详情页当前位图）做即时占位，原图加载期间就能缩放拖动，加载完成后无缝换成原图。 |
 | 📋 **Novel Text Copy** | 解锁小说里的文字：正文可以长按选中复制，简介和系列说明也能选；阅读器右上角菜单多了「复制标题」「复制作者」「下载全文」，全文存成 `下载/作品ID_标题.txt`（标题、简介、链接、正文）。 |
@@ -43,9 +44,9 @@ AI 作品标记、去广告、原图下载、客户端会员功能、本地浏�
 ## 🩹 补丁列表
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.5.0](https://github.com/Piracola/Pixiv-Patched/releases/tag/v1.5.0)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;11 patches total
+> **[v1.5.0](https://github.com/Piracola/Pixiv-Patched/releases/tag/v1.5.0)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;12 patches total
 <details open>
-<summary>📦 Pixiv&nbsp;&nbsp;•&nbsp;&nbsp;11 patches</summary>
+<summary>📦 Pixiv&nbsp;&nbsp;•&nbsp;&nbsp;12 patches</summary>
 <br>
 
 **Package name:** `jp.pxv.android`
@@ -67,6 +68,7 @@ AI 作品标记、去广告、原图下载、客户端会员功能、本地浏�
 | [Pixiv Popular Search Trial](#pixiv-popular-search-trial) | Pins the 7-day popular-search trial countdown so a trial account keeps getting the trial version of the popular tab instead of falling back to the preview/paywall. Does not change what Pixiv returns for accounts without the trial. |  |
 | [Pixiv Popular Search Unlock](#pixiv-popular-search-unlock) | Fakes the premium flag in the search pager so the app asks for popular_desc. Pixiv still answers a free account with date order, so use Pixiv Popular Search Trial instead. |  |
 | [Pixiv Premium Features](#pixiv-premium-features) | Emulates client-side Pixiv Premium membership status and removes the mute list limits. |  |
+| [Pixiv Search Ranking](#pixiv-search-ranking) | Fills the Popular search tab on a free account: either with Pixiv's free popularity preview (about 30 works) or by re-sorting the page by bookmark count. Selected in the Pixiv-Patched page. |  |
 | [Pixiv-Patched Drawer Entry](#pixiv-patched-drawer-entry) | Adds a Pixiv-Patched item to Pixiv's home drawer that opens a page with the state of every patch, the AI work settings and the browsing history kept on this device. |  |
 
 </details>
@@ -90,7 +92,7 @@ AI 作品标记、去广告、原图下载、客户端会员功能、本地浏�
 ## ⚠️ 需要先说清楚的限制
 
 - **会员是纯客户端的。** 服务端权益（会员专属下载、更高分辨率档位等）不受影响。
-- **热度排序**的结果和深度都由 Pixiv 服务器决定：服务端对非会员会忽略 `popular_desc`，照样按时间返回，客户端只能决定请求什么、以及停在试用页还是付费墙。
+- **热度排序**的结果和深度都由 Pixiv 服务器决定：服务端对非会员会忽略 `popular_desc`，照样按时间返回。所以这里有三个选择：`Popular Search Trial`（试用倒计时常驻）、`Popular Search Unlock`（伪造成员，实际看不出差别）、`Search Ranking`（客户端换数据源或本地重排）。
 - **广告只是界面层隐藏。** 广告 SDK 仍在运行，也仍可能发出请求。
 - **浏览历史**分插画/漫画和小说两个列表，各自回退到本地缓存的最近 100 条（在 App 内打开过的作品），不是 Pixiv 的服务端历史；只有在开启 **Premium Features** 时才会记录和回填。
 - **AI 标记**依赖 Pixiv 自己的 `illustAiType` 元数据，只有上传时勾选了 AI 的作品才有这个值；所以另外提供了标签黑名单作为兜底。
