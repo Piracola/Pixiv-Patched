@@ -1,3 +1,9 @@
+## [1.5.0](https://github.com/Piracola/Pixiv-Patched/compare/v1.4.0...v1.5.0) (2026-11-11)
+
+### ✨ New Features
+
+* **popularsearch:** pin the popular search trial countdown ([cb0d70b](https://github.com/Piracola/Pixiv-Patched/commit/cb0d70b05fff692d09c8f2004792af307ac6fc39))
+
 ## [1.4.0](https://github.com/Piracola/Pixiv-Patched/compare/v1.3.0...v1.4.0) (2026-11-08)
 
 ### ✨ New Features

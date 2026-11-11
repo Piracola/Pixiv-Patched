@@ -43,9 +43,9 @@ AI 作品标记、去广告、原图下载、客户端会员功能、本地浏�
 ## 🩹 补丁列表
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.4.0](https://github.com/Piracola/Pixiv-Patched/releases/tag/v1.4.0)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;10 patches total
+> **[v1.5.0](https://github.com/Piracola/Pixiv-Patched/releases/tag/v1.5.0)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;11 patches total
 <details open>
-<summary>📦 Pixiv&nbsp;&nbsp;•&nbsp;&nbsp;10 patches</summary>
+<summary>📦 Pixiv&nbsp;&nbsp;•&nbsp;&nbsp;11 patches</summary>
 <br>
 
 **Package name:** `jp.pxv.android`
@@ -64,7 +64,7 @@ AI 作品标记、去广告、原图下载、客户端会员功能、本地浏�
 | [Pixiv Enhanced Viewer & Instant Zoom](#pixiv-enhanced-viewer-instant-zoom) | Displays the standard-resolution artwork as an instant placeholder while the full-resolution image loads, allows immediate pinch-to-zoom/pan preserving zoom coordinates upon high-res load, and shows a discreet loading indicator. |  |
 | [Pixiv Novel Text Copy](#pixiv-novel-text-copy) | Re-enables text handling on the novel reader: long-press selection in the body, caption and series description, and a reader menu with copy title, copy author and download-full-text (title, caption, link and body saved as a .txt in Downloads). |  |
 | [Pixiv OLED Dark Theme](#pixiv-oled-dark-theme) | Overrides dark gray surface and background colors with pure pitch black (#ff000000) for OLED battery savings and true high-contrast dark mode. |  |
-| [Pixiv Popular Search Trial](#pixiv-popular-search-trial) | Keeps Pixiv's free 7-day popular-search trial from expiring: the search pager keeps building the trial version of the popular tab instead of the paywall once the 7 days are over. |  |
+| [Pixiv Popular Search Trial](#pixiv-popular-search-trial) | Pins the 7-day popular-search trial countdown so a trial account keeps getting the trial version of the popular tab instead of falling back to the preview/paywall. Does not change what Pixiv returns for accounts without the trial. |  |
 | [Pixiv Popular Search Unlock](#pixiv-popular-search-unlock) | Fakes the premium flag in the search pager so the app asks for popular_desc. Pixiv still answers a free account with date order, so use Pixiv Popular Search Trial instead. |  |
 | [Pixiv Premium Features](#pixiv-premium-features) | Emulates client-side Pixiv Premium membership status and removes the mute list limits. |  |
 | [Pixiv-Patched Drawer Entry](#pixiv-patched-drawer-entry) | Adds a Pixiv-Patched item to Pixiv's home drawer that opens a page with the state of every patch, the AI work settings and the browsing history kept on this device. |  |
