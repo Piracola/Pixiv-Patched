@@ -1,3 +1,9 @@
+## [1.7.1](https://github.com/Piracola/Pixiv-Patched/compare/v1.7.0...v1.7.1) (2026-11-12)
+
+### 🐛 Bug Fixes
+
+* **searchranking:** keep page order when a page cannot be requested ([7aa0c5a](https://github.com/Piracola/Pixiv-Patched/commit/7aa0c5a069bc89db26c9e9bef9e5cea7cd750129))
+
 ## [1.7.0](https://github.com/Piracola/Pixiv-Patched/compare/v1.6.0...v1.7.0) (2026-11-12)
 
 ### ✨ New Features
