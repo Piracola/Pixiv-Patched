@@ -41,10 +41,11 @@ val pixivAdblockerPatch: BytecodePatch = bytecodePatch(
                 reference.parameterTypes.size == 1
         }
         check(addFrameIndex >= 0) { "banner binder constructor: addView() call not found" }
-        val frameRegister = registerName(
-            bannerBinderCtor,
-            (ctorInstructions[addFrameIndex] as? FiveRegisterInstruction)?.registerD ?: 2
-        )
+        // The frame is added with a five-register call; anything else means the layout of that
+        // constructor changed, and guessing a register would patch in a call that fails to verify.
+        val addFrameCall = ctorInstructions[addFrameIndex] as? FiveRegisterInstruction
+            ?: error("banner binder constructor: addView() call is not a five-register call")
+        val frameRegister = registerName(bannerBinderCtor, addFrameCall.registerD)
         bannerBinderCtor.addInstructions(
             addFrameIndex + 1,
             "invoke-static {$frameRegister}, Lapp/morphe/extension/pixiv/adblock/AdblockHelper;->collapseOverlayFrame(Landroid/view/View;)V"

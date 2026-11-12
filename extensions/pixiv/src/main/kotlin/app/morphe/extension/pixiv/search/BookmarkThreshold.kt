@@ -70,12 +70,8 @@ object BookmarkThreshold {
     /** Only the connection matters for the warm-up, so it asks for the host root, not for a page. */
     private const val API_ORIGIN = "https://app-api.pixiv.net/"
 
-    /** Written by the build that stored the position in [PRESETS] instead of the count itself. */
-    private const val LEGACY_KEY_INDEX = "bookmark_threshold"
-    private const val LEGACY_KEY_SCHEMA = "bookmark_threshold_schema"
-
     /** How long all borrowing may take, counted from the moment the first page arrives. */
-    private const val FILL_BUDGET_MS = 2000L
+    private const val FILL_BUDGET_MS = 1000L
 
     /** How many borrowed pages may be in flight at once. */
     private const val MAX_PARALLEL_PAGES = 4
@@ -177,14 +173,6 @@ object BookmarkThreshold {
         synchronized(BookmarkThreshold) {
             if (loaded) return
             val prefs = prefs(context)
-            runCatching {
-                if (prefs.contains(LEGACY_KEY_INDEX) || prefs.contains(LEGACY_KEY_SCHEMA)) {
-                    prefs.edit()
-                        .remove(LEGACY_KEY_INDEX)
-                        .remove(LEGACY_KEY_SCHEMA)
-                        .apply()
-                }
-            }
             current = prefs.getInt(KEY_FLOOR, 0).coerceIn(0, MAX_FLOOR)
             loaded = true
         }
@@ -344,9 +332,14 @@ object BookmarkThreshold {
                 // user has since abandoned is dropped, not merged into this one's results.
                 val mine = ready?.takeIf { it.search == searchKey(request.url) }
                 if (ready != null && mine == null) runCatching { ready.call.cancel() }
-                val fills = urls.mapIndexedNotNull { index, url ->
-                    if (index == 0 && mine != null && mine.offset == offset) mine
+                // A page that cannot be asked for ends the batch right here: merging the pages after
+                // it would leave a hole and shift later works up into it.
+                val fills = ArrayList<Fill>(urls.size)
+                for ((index, url) in urls.withIndex()) {
+                    val fill = if (index == 0 && mine != null && mine.offset == offset) mine
                     else startFill(request, url, itemsKey, searchKey(request.url))
+                    if (fill == null) break
+                    fills.add(fill)
                 }
                 val arrived = arrayOfNulls<Page>(fills.size)
                 val settled = BooleanArray(fills.size)
