@@ -1,3 +1,9 @@
+## [1.7.2](https://github.com/Piracola/Pixiv-Patched/compare/v1.7.1...v1.7.2) (2026-11-12)
+
+### 🐛 Bug Fixes
+
+* **ui:** draw the settings groups as rounded cards ([f5ce60c](https://github.com/Piracola/Pixiv-Patched/commit/f5ce60c9266090eb61dde54ae07181ae313ae730))
+
 ## [1.7.1](https://github.com/Piracola/Pixiv-Patched/compare/v1.7.0...v1.7.1) (2026-11-12)
 
 ### 🐛 Bug Fixes
