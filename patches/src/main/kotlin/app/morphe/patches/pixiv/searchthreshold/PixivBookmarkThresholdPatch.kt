@@ -35,7 +35,7 @@ val pixivBookmarkThresholdPatch: BytecodePatch = bytecodePatch(
     description = "Drops works below the chosen bookmark count from search results on the device, " +
         "for illusts and novels alike, and tops a short page up from the following pages so it " +
         "does not turn blank. The request itself is left alone, so the floor works with search " +
-        "words in any language. Selected in the Pixiv-Patched page.",
+        "words in any language. Adjustable in the Pixiv-Patched page.",
     default = true
 ) {
     compatibleWith(PixivConstants.PIXIV)

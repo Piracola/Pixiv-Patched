@@ -26,7 +26,9 @@ cd I:\JBCode\Android\Pixiv
 
 ```powershell
 cd I:\JBCode\Android\Pixiv\_reference
-java -jar _work_morphe_desktop.jar patch -p "..\patches\build\libs\patches-1.5.0.mpp" --continue-on-error -o "patchtest\v203.apk" apk\pixiv_6.203.0_apkpure.com.apk
+# mpp 的文件名跟着 gradle.properties 的 version 走，发版后会变！先看 build/libs 里最新的是哪个再填
+$mpp = (Get-ChildItem ..\patches\build\libs\patches-*.mpp | Where-Object Name -notmatch "sources|javadoc" | Sort-Object LastWriteTime -Descending | Select-Object -First 1).Name
+java -jar _work_morphe_desktop.jar patch -p "..\patches\build\libs\$mpp" --continue-on-error -o "patchtest\v203.apk" apk\pixiv_6.203.0_apkpure.com.apk
 adb install -r patchtest\v203.apk
 adb shell am start -n jp.pxv.android/.activity.RoutingActivity
 ```
@@ -74,9 +76,15 @@ python .github/scripts/generate_patches_readme.py Piracola/Pixiv-Patched main   
 - 窗口设了 `PixelFormat.TRANSLUCENT` + 清掉 `FLAG_DIM_BEHIND`，否则滑动时露出的区域是黑的。
 - 小选择器是同窗口内的「遮罩 + 卡片」，不是独立窗口——独立小窗口点外面收不到事件，关不掉。
 
-## 补丁与开关（现状）
+## 补丁与设置（现状）
 
-`Pixiv Search Ranking`（默认开）、`Pixiv Bookmark Threshold`（默认开）、`Pixiv Popular Search`、`Pixiv AI Filter`、`Pixiv Adblocker`、`Pixiv Drawer Entry`、`Pixiv Enhanced Viewer`、`Pixiv Novel Copy` 等，共 13 个。
+共 13 个补丁。**App 内能调的东西只有三项**，都在侧边栏的 Pixiv-Patched 页里：
+AI 作品显示设置（`AiFilterSettingsView`）、热门搜索排序（`SearchRankingConfig`，关闭/热度预览）、搜索收藏数门槛（`BookmarkThreshold`，0–999999）。
+状态区只显示不开开关，历史区只能清空。其余补丁在 Morphe Manager 里选定后就固定，别再往 App 里加开关。
+
+三个热度搜索补丁的关系：`Pixiv Search Ranking`（默认开，依赖 `Pixiv Popular Search Unlock`）、`Pixiv Popular Search Unlock`（默认关）、`Pixiv Popular Search Trial`。会员标志被钉成 true 后，Trial 的流程不再触发。
+
+补丁描述的唯一真源是各 `*Patch.kt` 的 `description`，`patches-list.json` 和 README 英文表都是生成物——改文案要改 Kotlin 再重新生成，别直接手改表格。
 
 OkHttp 钩子：两个补丁都挂在 `OkHttpClient.<init>(OkHttpClient$Builder;)V`，必须保证幂等（`interceptors()` 里判断是否已装）。注意：**每个新建的 OkHttpClient 都会被装上拦截器**，内部再发请求要么用 `ThreadLocal` 标记透传，要么小心递归。
 

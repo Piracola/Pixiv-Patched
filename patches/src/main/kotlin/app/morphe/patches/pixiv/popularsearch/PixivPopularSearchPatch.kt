@@ -30,7 +30,7 @@ import com.android.tools.smali.dexlib2.iface.reference.FieldReference
 val pixivPopularSearchPatch: BytecodePatch = bytecodePatch(
     name = "Pixiv Popular Search Unlock",
     description = "Fakes the premium flag in the search pager so the app asks for popular_desc. " +
-        "Pixiv still answers a free account with date order, so use Pixiv Popular Search Trial instead.",
+        "Pixiv still answers a free account with date order.",
     default = false
 ) {
     compatibleWith(PixivConstants.PIXIV)

@@ -15,7 +15,9 @@ import app.morphe.patcher.patch.bytecodePatch
  */
 val pixivDrawerEntryPatch: BytecodePatch = bytecodePatch(
     name = "Pixiv-Patched Drawer Entry",
-    description = "Adds a Pixiv-Patched item to Pixiv's home drawer that opens a page with the state of every patch, the AI work settings and the browsing history kept on this device.",
+    description = "Adds a Pixiv-Patched item to Pixiv's home drawer. The page it opens holds the " +
+        "AI work display settings, the popular-search ranking and the bookmark threshold, shows the " +
+        "state of the other patches, and lists the browsing history kept on this device.",
     default = true
 ) {
     compatibleWith(PixivConstants.PIXIV)

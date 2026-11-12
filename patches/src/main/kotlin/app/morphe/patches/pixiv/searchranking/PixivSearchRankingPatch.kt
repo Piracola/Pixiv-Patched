@@ -27,7 +27,7 @@ val pixivSearchRankingPatch: BytecodePatch = bytecodePatch(
     name = "Pixiv Search Ranking",
     description = "Fills the Popular search tab on a free account with Pixiv's free popularity " +
         "preview (about 30 illusts or novels), for both illust and novel search. " +
-        "Selected in the Pixiv-Patched page.",
+        "Adjustable in the Pixiv-Patched page.",
     default = true
 ) {
     compatibleWith(PixivConstants.PIXIV)

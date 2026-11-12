@@ -10,7 +10,9 @@ import app.morphe.patcher.patch.bytecodePatch
 
 val pixivEnhancedViewerPatch: BytecodePatch = bytecodePatch(
     name = "Pixiv Enhanced Viewer & Instant Zoom",
-    description = "Displays the standard-resolution artwork as an instant placeholder while the full-resolution image loads, allows immediate pinch-to-zoom/pan preserving zoom coordinates upon high-res load, and shows a discreet loading indicator.",
+    description = "Shows the standard-resolution artwork as an instant placeholder while the " +
+        "full-resolution image loads, so pinch-to-zoom and panning work right away and keep their " +
+        "position when the full image replaces the placeholder.",
     default = true
 ) {
     compatibleWith(PixivConstants.PIXIV)

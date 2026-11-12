@@ -366,10 +366,17 @@ object PatchedSettings {
             setPadding(dp(context, 4f), dp(context, 16f), dp(context, 4f), dp(context, 8f))
         }
 
+    /** One group of rows, drawn as the same rounded card the AI filter page uses. */
     private fun card(context: Context, palette: Palette): LinearLayout =
         LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
-            setBackgroundColor(palette.card)
+            background = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                setColor(palette.card)
+                cornerRadius = dp(context, 10f).toFloat()
+            }
+            // The rows and the dividers between them are square, so they are clipped to the radius.
+            clipToOutline = true
             setPadding(0, dp(context, 4f), 0, dp(context, 4f))
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,

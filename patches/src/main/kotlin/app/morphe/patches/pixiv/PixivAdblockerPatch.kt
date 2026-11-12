@@ -16,7 +16,8 @@ import com.android.tools.smali.dexlib2.iface.reference.MethodReference
 
 val pixivAdblockerPatch: BytecodePatch = bytecodePatch(
     name = "Pixiv Adblocker",
-    description = "Eliminates bottom advertising banners and interstitials across all screens without layout padding, suppresses rate-this-app dialogs, and hides sponsored works in feeds.",
+    description = "Removes the bottom banner frame on every screen, blocks AppLovin interstitials, " +
+        "suppresses rate-this-app dialogs, and hides sponsored works in feeds and on the illustration detail screen.",
     default = true
 ) {
     compatibleWith(PixivConstants.PIXIV)
