@@ -1,6 +1,7 @@
 package app.morphe.patches.pixiv.ui
 
 import app.morphe.patches.pixiv.shared.PixivConstants
+import app.morphe.patches.pixiv.shared.drawerItemClickFingerprint
 
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
 import app.morphe.patcher.patch.BytecodePatch
@@ -32,11 +33,7 @@ val pixivDrawerEntryPatch: BytecodePatch = bytecodePatch(
             "invoke-static/range {p0 .. p0}, Lapp/morphe/extension/pixiv/ui/DrawerEntry;->install(Ljava/lang/Object;)V"
         )
 
-        val presenter = mutableClassDefBy("Lg46;")
-        val onItemClick = presenter.methods.firstOrNull {
-            it.name == "o" && it.parameterTypes.size == 2 &&
-                it.parameterTypes[1].toString() == "Landroid/view/MenuItem;"
-        } ?: throw IllegalStateException("NavigationView presenter item click not found")
+        val onItemClick = drawerItemClickFingerprint.method
 
         onItemClick.addInstructions(
             0,
