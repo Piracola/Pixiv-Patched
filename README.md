@@ -4,9 +4,9 @@
 AI 作品标记、去广告、原图下载、客户端会员功能、本地浏览记录、热度搜索、OLED 纯黑主题、全屏查看器加速、小说文本复制。
 
 [![License: GPL-3.0](https://img.shields.io/badge/License-GPL%203.0-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![Target App](https://img.shields.io/badge/目标版本-Pixiv%20v6.202.1-0096FA.svg)](https://play.google.com/store/apps/details?id=jp.pxv.android)
+[![Target App](https://img.shields.io/badge/目标版本-Pixiv%20v6.203.0-0096FA.svg)](https://play.google.com/store/apps/details?id=jp.pxv.android)
 
-支持的版本：**Pixiv 6.202.1（versionCode 69581）**。补丁直接绑定这个版本，其他版本会拒绝打补丁。
+支持的版本：**Pixiv 6.203.0 与 6.202.1**。补丁绑定具体版本，其他版本会拒绝打补丁。
 
 ---
 
@@ -32,34 +32,36 @@ AI 作品标记、去广告、原图下载、客户端会员功能、本地浏�
 | 🏠 **Pixiv-Patched Drawer Entry** | 在 Pixiv 主页侧边栏最底部加一行 **Pixiv-Patched**，点开是独立页面：显示各补丁的运行状态、AI 作品显示设置入口和本地浏览记录。不占用也不改动任何官方设置项。 |
 | 🔥 **Popular Search Trial** | 把试用期的 7 天倒计时钉住：账号处在试用中时一直留在试用版热门标签页，不会在第七天后掉回付费预览页。排序本身由服务端决定，本来就没试用资格的免费账号不受影响。 |
 | 🧪 **Popular Search Unlock** | 实验性：把搜索页里的会员标志伪造成 true，让 App 去请求 `popular_desc`。排序由服务端判定，免费账号拿到的仍是时间序，默认不开。 |
-| 🔎 **Search Ranking** | 给热门标签页填真数据：`热度预览` 直接换成 Pixiv 免费下发的那份热度榜（约 30 张，服务端真的按热度排），`按收藏重排` 把当前页按 `total_bookmarks` 重新排一遍。在 Pixiv-Patched 页里点一下切换，默认关闭。 |
+| 🔎 **Search Ranking** | 给热门标签页填真数据：插画和小说都适用，直接换成 Pixiv 免费下发的那份热度榜（约 30 件，服务端真的按热度排）。在 Pixiv-Patched 页里点一下切换。 |
+| 💮 **Bookmark Threshold** | 给搜索加收藏数门槛：在本机把收藏数不足的作品从结果页里去掉，插画和小说都适用。筛完不够半页时自动把后面几页补进来，页面不会变成空白。搜索请求本身不改，所以任何语言的搜索词都照常生效。在 Pixiv-Patched 页里选档位。 |
 | 🌑 **OLED Dark Theme** | 把暗色主题的表面/背景色改写为纯黑。 |
 | 🖼️ **Enhanced Viewer & Instant Zoom** | 全屏查看器先用该页的标准分辨率图（或详情页当前位图）做即时占位，原图加载期间就能缩放拖动，加载完成后无缝换成原图。 |
 | 📋 **Novel Text Copy** | 解锁小说里的文字：正文可以长按选中复制，简介和系列说明也能选；阅读器右上角菜单多了「复制标题」「复制作者」「下载全文」，全文存成 `下载/作品ID_标题.txt`（标题、简介、链接、正文）。 |
 
-所有补丁互相独立，可自由开关。两个热度搜索补丁作用在同一处判断上，**只开一个**：默认的 **Popular Search Trial** 保留试用流程，**Popular Search Unlock** 是伪造成员的那条路（排序依赖服务端，免费账号看不到差别）。
+补丁大体互相独立。三个热度搜索补丁作用在同一处判断上：**Search Ranking** 需要在免费账号下真的发出「热门度顺序」请求，因此会自动带上 **Popular Search Unlock**（会员标志被钉成 true 后，**Popular Search Trial** 的试用流程就不再触发）。
 
 ---
 
 ## 🩹 补丁列表
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.6.0](https://github.com/Piracola/Pixiv-Patched/releases/tag/v1.6.0)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;12 patches total
+> **[v1.6.0](https://github.com/Piracola/Pixiv-Patched/releases/tag/v1.6.0)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;13 patches total
 <details open>
-<summary>📦 Pixiv&nbsp;&nbsp;•&nbsp;&nbsp;12 patches</summary>
+<summary>📦 Pixiv&nbsp;&nbsp;•&nbsp;&nbsp;13 patches</summary>
 <br>
 
 **Package name:** `jp.pxv.android`
 
 **🎯 Supported versions:**
 
-| 6.202.1 |
-| :---: |
+| 6.202.1 | 6.203.0 |
+| :---: | :---: |
 
 | 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
 |----------|----------------|-----------|
 | [Pixiv AI Work Flagger](#pixiv-ai-work-flagger) | Identifies AI-generated works, dims thumbnails with an [AI] badge (or hides them completely), displays a full-width warning banner below the top toolbar on artwork detail, adds title [AI] pill, auto-blocks AI artists, and provides in-app settings with tag editor. |  |
 | [Pixiv Adblocker](#pixiv-adblocker) | Eliminates bottom advertising banners and interstitials across all screens without layout padding, suppresses rate-this-app dialogs, and hides sponsored works in feeds. |  |
+| [Pixiv Bookmark Threshold](#pixiv-bookmark-threshold) | Drops works below the chosen bookmark count from search results on the device, for illusts and novels alike, and tops a short page up from the following pages so it does not turn blank. The request itself is left alone, so the floor works with search words in any language. Selected in the Pixiv-Patched page. |  |
 | [Pixiv Browsing History](#pixiv-browsing-history) | Records the illustrations, manga and novels opened in the app into an on-device browsing history, and shows it in the app's own history screen (manga and novels apart) instead of Pixiv's server-side list. |  |
 | [Pixiv Downloader](#pixiv-downloader) | Adds a button to the illustration and manga detail view to download original full-quality artwork directly to your Photos library with clean metadata filenames. |  |
 | [Pixiv Enhanced Viewer & Instant Zoom](#pixiv-enhanced-viewer-instant-zoom) | Displays the standard-resolution artwork as an instant placeholder while the full-resolution image loads, allows immediate pinch-to-zoom/pan preserving zoom coordinates upon high-res load, and shows a discreet loading indicator. |  |
@@ -68,7 +70,7 @@ AI 作品标记、去广告、原图下载、客户端会员功能、本地浏�
 | [Pixiv Popular Search Trial](#pixiv-popular-search-trial) | Pins the 7-day popular-search trial countdown so a trial account keeps getting the trial version of the popular tab instead of falling back to the preview/paywall. Does not change what Pixiv returns for accounts without the trial. |  |
 | [Pixiv Popular Search Unlock](#pixiv-popular-search-unlock) | Fakes the premium flag in the search pager so the app asks for popular_desc. Pixiv still answers a free account with date order, so use Pixiv Popular Search Trial instead. |  |
 | [Pixiv Premium Features](#pixiv-premium-features) | Emulates client-side Pixiv Premium membership status and removes the mute list limits. |  |
-| [Pixiv Search Ranking](#pixiv-search-ranking) | Fills the Popular search tab on a free account: either with Pixiv's free popularity preview (about 30 works) or by re-sorting the page by bookmark count. Selected in the Pixiv-Patched page. |  |
+| [Pixiv Search Ranking](#pixiv-search-ranking) | Fills the Popular search tab on a free account with Pixiv's free popularity preview (about 30 illusts or novels), for both illust and novel search. Selected in the Pixiv-Patched page. |  |
 | [Pixiv-Patched Drawer Entry](#pixiv-patched-drawer-entry) | Adds a Pixiv-Patched item to Pixiv's home drawer that opens a page with the state of every patch, the AI work settings and the browsing history kept on this device. |  |
 
 </details>
@@ -92,7 +94,7 @@ AI 作品标记、去广告、原图下载、客户端会员功能、本地浏�
 ## ⚠️ 需要先说清楚的限制
 
 - **会员是纯客户端的。** 服务端权益（会员专属下载、更高分辨率档位等）不受影响。
-- **热度排序**的结果和深度都由 Pixiv 服务器决定：服务端对非会员会忽略 `popular_desc`，照样按时间返回。所以这里有三个选择：`Popular Search Trial`（试用倒计时常驻）、`Popular Search Unlock`（伪造成员，实际看不出差别）、`Search Ranking`（客户端换数据源或本地重排）。
+- **热度排序**的结果和深度都由 Pixiv 服务器决定：服务端对非会员会忽略 `popular_desc`，照样按时间返回。`Search Ranking` 的做法是把这一条请求换成 Pixiv 自己的免费热度预览接口，因此只有约 30 条、不能翻页；`Popular Search Trial` 只是把试用倒计时钉住，`Popular Search Unlock` 只伪造成员标志。
 - **广告只是界面层隐藏。** 广告 SDK 仍在运行，也仍可能发出请求。
 - **浏览历史**分插画/漫画和小说两个列表，各自回退到本地缓存的最近 100 条（在 App 内打开过的作品），不是 Pixiv 的服务端历史；只有在开启 **Premium Features** 时才会记录和回填。
 - **AI 标记**依赖 Pixiv 自己的 `illustAiType` 元数据，只有上传时勾选了 AI 的作品才有这个值；所以另外提供了标签黑名单作为兜底。
